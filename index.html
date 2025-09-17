@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยินดีต้อนรับเข้าสู่ระบบแอดมิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .ai-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .mobile-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .mobile-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 30;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+            
+            .mobile-main {
+                margin-left: 0 !important;
+                padding: 1rem !important;
+                padding-top: 5rem !important;
+            }
+            
+            .mobile-header {
+                padding: 1rem !important;
+            }
+            
+            .mobile-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .mobile-text {
+                font-size: 0.875rem !important;
+            }
+            
+            .mobile-card {
+                padding: 1rem !important;
+            }
+            
+            .mobile-modal {
+                width: 95% !important;
+                margin: 1rem !important;
+                max-height: 90vh !important;
+            }
+            
+            .mobile-flex {
+                flex-direction: column !important;
+                space-x: 0 !important;
+            }
+            
+            .mobile-flex > * {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .mobile-flex > *:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+        
+        /* Tablet Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .tablet-sidebar {
+                width: 200px !important;
+            }
+            
+            .tablet-main {
+                margin-left: 200px !important;
+            }
+            
+            .tablet-grid-2 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* Desktop Responsive */
+        @media (min-width: 1025px) {
+            .desktop-grid-4 {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 w-96 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 ai-glow">
+                    <i class="fas fa-robot text-3xl text-white"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-2">LINE OA Management</h1>
+                <p class="text-white/70">AI-Powered Bot Management System</p>
+            </div>
+            
+            <form onsubmit="login(event)" class="space-y-6">
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        <i class="fas fa-key mr-2"></i>รหัสผ่าน
+                    </label>
+                    <input type="password" id="loginPassword" 
+                           class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="กรอกรหัสผ่าน" required>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-300 ai-glow">
+                    <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+        <header class="glass fixed top-0 left-0 right-0 z-40 px-4 md:px-6 py-3 md:py-4 mobile-header">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-all">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center ai-glow">
+                        <i class="fas fa-robot text-lg md:text-xl text-white"></i>
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="text-lg md:text-xl font-bold text-white">DinoBotsCorp</h1>
+                        <p class="text-white/70 text-xs md:text-sm">Menu AddminBots Version 1.0</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 glass px-3 py-2 rounded-lg">
+                        <div id="connectionDot" class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span class="text-white text-sm" id="connectionStatus">เชื่อมต่อแล้ว</span>
+                    </div>
+                    
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 glass px-3 py-2 rounded-lg hover:bg-white/20 transition-all">
+                            <i class="fas fa-user-circle text-white"></i>
+                            <span class="text-white text-sm">Admin</span>
+                            <i class="fas fa-chevron-down text-white/70"></i>
+                        </button>
+                        
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 glass rounded-lg shadow-xl">
+                            <a href="#" onclick="showAdminManagement()" class="block px-4 py-2 text-white hover:bg-white/10 rounded-t-lg">
+                                <i class="fas fa-users-cog mr-2"></i>จัดการแอดมิน
+                            </a>
+                            <a href="#" onclick="logout()" class="block px-4 py-2 text-white hover:bg-white/10 rounded-b-lg">
+                                <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <aside id="sidebar" class="fixed left-0 top-16 md:top-20 w-64 md:w-64 tablet-sidebar h-full glass slide-in mobile-sidebar z-50">
+            <nav class="p-4 md:p-6">
+                <div class="space-y-2">
+                    <a href="#" onclick="showSection('dashboard'); closeMobileSidebar();" class="nav-item flex items-center space-x-3 p-3 rounded-lg bg-white/20 text-white transition-all">
+                        <i class="fas fa-chart-line w-5 text-sm md:text-base"></i>
+                        <span class="text-sm md:text-base">แดชบอร์ด</span>
+                    </a>
+                    <a href="#" onclick="showSection('messages'); closeMobileSidebar();" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 text-white transition-all">
+                        <i class="fas fa-comments w-5 text-sm md:text-base"></i>
+                        <span class="text-sm md:text-base">จัดการข้อความ</span>
+                    </a>
+                    <a href="#" onclick="showSection('keywords'); closeMobileSidebar();" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 text-white transition-all">
+                        <i class="fas fa-tags w-5 text-sm md:text-base"></i>
+                        <span class="text-sm md:text-base">คีย์เวิร์ด</span>
+                    </a>
+                    <a href="#" onclick="showSection('analytics'); closeMobileSidebar();" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 text-white transition-all">
+                        <i class="fas fa-chart-pie w-5 text-sm md:text-base"></i>
+                        <span class="text-sm md:text-base">สถิติ</span>
+                    </a>
+                    <a href="#" onclick="showSection('settings'); closeMobileSidebar();" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 text-white transition-all">
+                        <i class="fas fa-cog w-5 text-sm md:text-base"></i>
+                        <span class="text-sm md:text-base">ตั้งค่า</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="ml-0 md:ml-64 tablet-main pt-16 md:pt-20 p-4 md:p-6 mobile-main">
+            <div id="dashboard" class="section fade-in">
+                <div class="mb-6 md:mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">แดชบอร์ด</h2>
+                    <p class="text-white/70 text-sm md:text-base">ภาพรวมการใช้งาน LINE Official Account</p>
+                </div>
+
+                <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 md:mb-8 card-hover mobile-card">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6">
+                        <h3 class="text-lg md:text-xl font-semibold text-white mb-2 sm:mb-0">ข้อมูล LINE Official Account</h3>
+                        <div class="flex items-center space-x-2">
+                            <div id="connectionDot" class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                            <span id="connectionStatus" class="text-green-300 text-xs md:text-sm">เชื่อมต่อแล้ว</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mobile-grid">
+                        <div class="bg-white/10 rounded-lg md:rounded-xl p-3 md:p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-store text-lg md:text-2xl text-blue-400"></i>
+                                <div>
+                                    <p class="text-white font-medium text-sm md:text-base">ชื่อบัญชี</p>
+                                    <p id="oaName" class="text-white/70 text-xs md:text-sm">My LINE Bot</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/10 rounded-lg md:rounded-xl p-3 md:p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-id-card text-lg md:text-2xl text-green-400"></i>
+                                <div>
+                                    <p class="text-white font-medium text-sm md:text-base">Channel ID</p>
+                                    <p id="channelId" class="text-white/70 text-xs md:text-sm font-mono">1234567890</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/10 rounded-lg md:rounded-xl p-3 md:p-4 sm:col-span-2 lg:col-span-1">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-users text-lg md:text-2xl text-purple-400"></i>
+                                <div>
+                                    <p class="text-white font-medium text-sm md:text-base">ผู้ติดตาม</p>
+                                    <p id="followerCount" class="text-white/70 text-xs md:text-sm">1,247 คน</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 desktop-grid-4 tablet-grid-2 mobile-grid gap-4 md:gap-6 mb-6 md:mb-8">
+                    <div class="glass rounded-xl p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">ข้อความวันนี้</p>
+                                <p id="todayMessages" class="text-2xl font-bold text-white">156</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-comment-dots text-xl text-blue-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-green-300">
+                            <i class="fas fa-arrow-up text-sm mr-1"></i>
+                            <span class="text-sm">+12% จากเมื่อวาน</span>
+                        </div>
+                    </div>
+
+                    <div class="glass rounded-xl p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">คีย์เวิร์ดทั้งหมด</p>
+                                <p id="totalKeywords" class="text-2xl font-bold text-white">24</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-tags text-xl text-green-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-green-300">
+                            <i class="fas fa-arrow-up text-sm mr-1"></i>
+                            <span class="text-sm">+3 คีย์เวิร์ดใหม่</span>
+                        </div>
+                    </div>
+
+                    <div class="glass rounded-xl p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">Response Rate</p>
+                                <p class="text-2xl font-bold text-white">98.5%</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bolt text-xl text-yellow-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-green-300">
+                            <i class="fas fa-arrow-up text-sm mr-1"></i>
+                            <span class="text-sm">+2% จากเดือนที่แล้ว</span>
+                        </div>
+                    </div>
+
+                    <div class="glass rounded-xl p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">แอดมิน</p>
+                                <p id="adminCount" class="text-2xl font-bold text-white">3</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-shield text-xl text-purple-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-blue-300">
+                            <i class="fas fa-users-cog text-sm mr-1"></i>
+                            <span class="text-sm">ออนไลน์ 2 คน</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-6">กิจกรรมล่าสุด</h3>
+                    <div id="recentActivity" class="space-y-4">
+                        </div>
+                </div>
+            </div>
+
+            <div id="messages" class="section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">จัดการข้อความ</h2>
+                    <p class="text-white/70">สร้างและแก้ไขข้อความตอบกลับอัตโนมัติ</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-white">รายการข้อความ</h3>
+                            <button onclick="showAddMessageModal()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all ai-glow">
+                                <i class="fas fa-plus mr-2"></i>เพิ่มข้อความ
+                            </button>
+                        </div>
+                        
+                        <div id="messagesList" class="space-y-4 max-h-96 overflow-y-auto">
+                            </div>
+                    </div>
+
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-6">สถิติข้อความ</h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/10 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-white text-sm">ข้อความทั้งหมด</span>
+                                    <span id="totalMessages" class="text-white font-bold">0</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div style="width: 100%" class="bg-blue-500 h-2 rounded-full"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/10 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-white text-sm">เปิดใช้งาน</span>
+                                    <span id="activeMessages" class="text-white font-bold">0</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div id="activeMessagesBar" style="width: 0%" class="bg-green-500 h-2 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="keywords" class="section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">จัดการคีย์เวิร์ด</h2>
+                    <p class="text-white/70">สร้างคีย์เวิร์ดและกำหนดการตอบกลับ</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-white mb-6">เพิ่มคีย์เวิร์ดใหม่</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-tag mr-2"></i>คีย์เวิร์ด
+                                </label>
+                                <input type="text" id="newKeyword" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="เช่น สวัสดี, hello, hi">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-list mr-2"></i>ประเภทข้อความ
+                                </label>
+                                <select id="messageType" onchange="toggleMessageInputs()" 
+                                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="text">1. ข้อความธรรมดา</option>
+                                    <option value="image">2. รูปภาพ (URL)</option>
+                                    <option value="flex">3. Flex Message (JSON)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div id="textInput">
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-comment mr-2"></i>เนื้อหาข้อความ
+                                </label>
+                                <textarea id="messageContent" 
+                                          class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+                                          placeholder="พิมพ์ข้อความที่ต้องการตอบกลับ..."></textarea>
+                            </div>
+                            
+                            <div id="imageInput" class="hidden space-y-3">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">
+                                        <i class="fas fa-image mr-2"></i>URL รูปภาพ
+                                    </label>
+                                    <input type="url" id="imageUrl" 
+                                           class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           placeholder="https://example.com/image.jpg">
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">
+                                        <i class="fas fa-font mr-2"></i>ข้อความแสดงแทน
+                                    </label>
+                                    <input type="text" id="imageAltText" 
+                                           class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           placeholder="คำอธิบายรูปภาพ">
+                                </div>
+                            </div>
+                            
+                            <div id="flexInput" class="hidden">
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-code mr-2"></i>Flex Message JSON
+                                </label>
+                                <textarea id="flexJson" 
+                                          class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 font-mono text-sm"
+                                          placeholder='{"type": "bubble", "body": {"type": "box", "layout": "vertical", "contents": [{"type": "text", "text": "Hello World"}]}}'></textarea>
+                                <div class="mt-2 flex space-x-2">
+                                    <button type="button" onclick="validateFlexJson()" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-all">
+                                        <i class="fas fa-check mr-1"></i>ตรวจสอบ JSON
+                                    </button>
+                                    <button type="button" onclick="showFlexExamples()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-all">
+                                        <i class="fas fa-clipboard-list mr-1"></i>ตัวอย่าง
+                                    </button>
+                                </div>
+                                <div id="jsonValidation" class="mt-2 hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="addKeyword()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-blue-700 transition-all ai-glow">
+                            <i class="fas fa-plus mr-2"></i>เพิ่มคีย์เวิร์ด
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-white">รายการคีย์เวิร์ด</h3>
+                        <div class="flex space-x-3">
+                            <input type="text" id="searchKeywords" placeholder="ค้นหาคีย์เวิร์ด..." 
+                                   class="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   onkeyup="filterKeywords()">
+                        </div>
+                    </div>
+                    
+                    <div id="keywordsList" class="space-y-4 max-h-96 overflow-y-auto">
+                        </div>
+                </div>
+            </div>
+
+            <div id="analytics" class="section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">สถิติและรายงาน</h2>
+                    <p class="text-white/70">วิเคราะห์ข้อมูลการใช้งานและประสิทธิภาพ</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-4">คีย์เวิร์ดยอดนิยม</h3>
+                        <div id="popularKeywords" class="space-y-3">
+                            </div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-4">เวลาที่ใช้งานมากที่สุด</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
+                                <span class="text-white">09:00 - 12:00</span>
+                                <span class="bg-green-500 text-white text-sm px-2 py-1 rounded">35%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
+                                <span class="text-white">13:00 - 17:00</span>
+                                <span class="bg-green-500 text-white text-sm px-2 py-1 rounded">28%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
+                                <span class="text-white">19:00 - 22:00</span>
+                                <span class="bg-green-500 text-white text-sm px-2 py-1 rounded">22%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">ตั้งค่าระบบ</h2>
+                    <p class="text-white/70">กำหนดค่าการเชื่อมต่อและการทำงานของ LINE Bot</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-6">การเชื่อมต่อ LINE</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-key mr-2"></i>Channel Access Token
+                                </label>
+                                <input type="password" id="accessToken" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="กรอก Channel Access Token">
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-shield-alt mr-2"></i>Channel Secret
+                                </label>
+                                <input type="password" id="channelSecret" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="กรอก Channel Secret">
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">
+                                    <i class="fas fa-link mr-2"></i>Webhook URL
+                                </label>
+                                <input type="url" id="webhookUrl" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="https://your-domain.com/webhook">
+                            </div>
+                            <button onclick="testConnection()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all ai-glow">
+                                <i class="fas fa-plug mr-2"></i>ทดสอบการเชื่อมต่อ
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-6">การตั้งค่าทั่วไป</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-robot text-white"></i>
+                                    <span class="text-white">การตอบกลับอัตโนมัติ</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-chart-bar text-white"></i>
+                                    <span class="text-white">บันทึกข้อมูลการใช้งาน</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-bell text-white"></i>
+                                    <span class="text-white">แจ้งเตือนข้อความใหม่</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <button onclick="saveSettings()" class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg hover:from-green-600 hover:to-blue-700 transition-all ai-glow">
+                                <i class="fas fa-save mr-2"></i>บันทึกการตั้งค่า
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="adminModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-[600px] mobile-modal max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-semibold text-white">
+                    <i class="fas fa-users-cog mr-2"></i>จัดการแอดมิน
+                </h3>
+                <button onclick="hideAdminModal()" class="text-white hover:text-gray-300 text-xl md:text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="bg-white/10 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
+                <h4 class="text-white font-medium mb-3 text-sm md:text-base">เพิ่มแอดมินใหม่</h4>
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mobile-flex">
+                    <input type="text" id="newAdminName" placeholder="ชื่อแอดมิน" 
+                           class="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base">
+                    <input type="password" id="newAdminPassword" placeholder="รหัสผ่าน" 
+                           class="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base">
+                    <button onclick="addAdmin()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all text-sm md:text-base">
+                        <i class="fas fa-plus mr-1 sm:mr-0"></i>
+                        <span class="sm:hidden">เพิ่มแอดมิน</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-medium mb-3">รายการแอดมิน</h4>
+                <div id="adminList" class="space-y-2">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Global Variables
+        let currentSection = 'dashboard';
+        let keywords = [];
+        let admins = [
+            { id: 1, name: 'Admin', password: '2005', active: true, lastLogin: new Date() }
+        ];
+        let currentUser = null;
+
+        // ** แก้ไข: ใส่ URL ของ Google Apps Script ที่นี่ **
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxv3_BFKbEAXTtCl6gyknyHgq709ShGJ30uFCtZh21wVxs3xzf7lKsLWBSJgsvbC1eWg/exec";
+        const CHANNEL_ACCESS_TOKEN = "5DxoEG4RKgfSFRvdQ424rQuDhDTcz13Yb3khnbABLZQnVtNawr7oP1Yehs1EOM/cCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH3BqDeYB8Ued5OG/KkWoHzyHbAe84eZsdxk6lmaLzc0nAdB04t89/1O/w1cDnyilFU=";
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchBotInfo(); // <--- เรียกใช้ฟังก์ชันดึงข้อมูลบอท
+            populateData();
+            startRealTimeUpdates();
+        });
+
+        // =======================================================
+        // 👉 ส่วนที่เพิ่มเข้ามา: ฟังก์ชันดึงข้อมูลบอท
+        // =======================================================
+        async function fetchBotInfo() {
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; 
+            const botInfoApiUrl = 'https://api.line.me/v2/bot/info';
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const dateString = `${year}${month}${day}`;
+            
+            const followersApiUrl = `https://api.line.me/v2/bot/followers/sdk?date=${dateString}`;
+
+            const headers = {
+                'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN,
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+
+            try {
+                const [botInfoResponse, followersResponse] = await Promise.all([
+                    fetch(proxyUrl + botInfoApiUrl, { headers }),
+                    fetch(proxyUrl + followersApiUrl, { headers })
+                ]);
+
+                if (botInfoResponse.ok) {
+                    const data = await botInfoResponse.json();
+                    document.getElementById('oaName').textContent = data.displayName;
+                    document.getElementById('channelId').textContent = data.userId;
+                } else {
+                    document.getElementById('oaName').textContent = 'Error Loading Name';
+                }
+
+                if (followersResponse.ok) {
+                    const data = await followersResponse.json();
+                    if (data.status === 'ready') {
+                        const followerCount = data.followers;
+                        document.getElementById('followerCount').textContent = `${followerCount.toLocaleString('th-TH')} คน`;
+                    } else {
+                        document.getElementById('followerCount').textContent = 'กำลังประมวลผล...';
+                    }
+                } else {
+                    document.getElementById('followerCount').textContent = 'Error Loading Followers';
+                }
+
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลบอท:', error);
+                showNotification('ไม่สามารถดึงข้อมูลบอทจาก LINE API ได้', 'error');
+                document.getElementById('oaName').textContent = 'API Error';
+                document.getElementById('channelId').textContent = 'API Error';
+                document.getElementById('followerCount').textContent = 'API Error';
+            }
+        }
+        
+        // Authentication
+        function login(event) {
+            event.preventDefault();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (password === '2005') {
+                currentUser = admins.find(admin => admin.password === password);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                showNotification('เข้าสู่ระบบสำเร็จ!', 'success');
+            } else {
+                showNotification('รหัสผ่านไม่ถูกต้อง!', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginPassword').value = '';
+            hideUserMenu();
+            showNotification('ออกจากระบบแล้ว', 'info');
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function hideUserMenu() {
+            document.getElementById('userMenu').classList.add('hidden');
+        }
+
+        // Navigation
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.getElementById(sectionName).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-white/20');
+                item.classList.add('hover:bg-white/10');
+            });
+            
+            // event.target.closest('.nav-item').classList.add('bg-white/20');
+            // event.target.closest('.nav-item').classList.remove('hover:bg-white/10');
+            
+            currentSection = sectionName;
+        }
+
+        // Message Type Toggle
+        function toggleMessageInputs() {
+            const messageType = document.getElementById('messageType').value;
+            const textInput = document.getElementById('textInput');
+            const imageInput = document.getElementById('imageInput');
+            const flexInput = document.getElementById('flexInput');
+
+            textInput.classList.add('hidden');
+            imageInput.classList.add('hidden');
+            flexInput.classList.add('hidden');
+
+            switch(messageType) {
+                case 'text':
+                    textInput.classList.remove('hidden');
+                    break;
+                case 'image':
+                    imageInput.classList.remove('hidden');
+                    break;
+                case 'flex':
+                    flexInput.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // Keyword Management
+        function addKeyword() {
+            const keyword = document.getElementById('newKeyword').value.trim();
+            const messageType = document.getElementById('messageType').value;
+            let content = '';
+            let altText = '';
+
+            if (!keyword) {
+                showNotification('กรุณากรอกคีย์เวิร์ด', 'error');
+                return;
+            }
+
+            switch(messageType) {
+                case 'text':
+                    content = document.getElementById('messageContent').value.trim();
+                    break;
+                case 'image':
+                    content = document.getElementById('imageUrl').value.trim();
+                    altText = document.getElementById('imageAltText').value.trim();
+                    break;
+                case 'flex':
+                    content = document.getElementById('flexJson').value.trim();
+                    try {
+                        JSON.parse(content);
+                    } catch (error) {
+                        showNotification('JSON ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'error');
+                        return;
+                    }
+                    break;
+            }
+
+            if (!content) {
+                showNotification('กรุณากรอกเนื้อหาข้อความ', 'error');
+                return;
+            }
+
+            const newKeyword = {
+                id: Date.now(),
+                keyword: keyword,
+                type: messageType,
+                content: content,
+                altText: altText,
+                active: true,
+                usageCount: 0,
+                createdAt: new Date()
+            };
+
+            saveKeywordToGoogleSheets(newKeyword);
+
+            keywords.push(newKeyword);
+            populateKeywords();
+            clearKeywordForm();
+            showNotification(`เพิ่มคีย์เวิร์ด "${keyword}" สำเร็จ!`, 'success');
+        }
+
+        function saveKeywordToGoogleSheets(data) {
+            if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === "") {
+                console.error("GOOGLE_APPS_SCRIPT_URL ไม่ได้ตั้งค่าไว้");
+                showNotification("ไม่สามารถบันทึกข้อมูลได้: ไม่พบ URL ของ Google Apps Script", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('timestamp', data.createdAt.toISOString());
+            formData.append('keyword', data.keyword);
+            formData.append('type', data.type);
+            formData.append('content', data.content);
+            formData.append('altText', data.altText);
+            formData.append('active', data.active);
+            formData.append('usageCount', data.usageCount);
+
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('บันทึกข้อมูลสำเร็จ:', result);
+                showNotification('ข้อมูลถูกบันทึกลง Google Sheets แล้ว', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('เกิดข้อผิดพลาดในการบันทึกข้อมูลลง Google Sheets', 'error');
+            });
+        }
+
+        function clearKeywordForm() {
+            document.getElementById('newKeyword').value = '';
+            document.getElementById('messageContent').value = '';
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('imageAltText').value = '';
+            document.getElementById('flexJson').value = '';
+            document.getElementById('messageType').value = 'text';
+            toggleMessageInputs();
+        }
+
+        function populateKeywords() {
+            const container = document.getElementById('keywordsList');
+            const searchTerm = document.getElementById('searchKeywords')?.value.toLowerCase() || '';
+            
+            let filteredKeywords = keywords;
+            if (searchTerm) {
+                filteredKeywords = keywords.filter(k => 
+                    k.keyword.toLowerCase().includes(searchTerm) ||
+                    k.content.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            container.innerHTML = filteredKeywords.map(k => `
+                <div class="bg-white/10 border border-white/20 rounded-lg p-4 card-hover">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h4 class="font-medium text-white">${k.keyword}</h4>
+                                <span class="inline-block ${k.active ? 'bg-green-500' : 'bg-red-500'} text-white text-xs px-2 py-1 rounded">
+                                    ${k.active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                                </span>
+                                <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                                    ${k.usageCount || 0} ครั้ง
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="inline-block bg-purple-500 text-white text-xs px-2 py-1 rounded">
+                                    ${getMessageTypeText(k.type)}
+                                </span>
+                            </div>
+                            <p class="text-white/70 text-sm">${getContentPreview(k)}</p>
+                        </div>
+                        <div class="flex flex-col space-y-2 ml-4">
+                            <button onclick="toggleKeyword(${k.id})" class="text-${k.active ? 'yellow' : 'green'}-300 hover:text-${k.active ? 'yellow' : 'green'}-100 transition-all text-sm">
+                                <i class="fas fa-${k.active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button onclick="deleteKeyword(${k.id})" class="text-red-300 hover:text-red-100 transition-all text-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (filteredKeywords.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-white/60">
+                        <i class="fas fa-search text-4xl mb-4"></i>
+                        <p>ไม่พบคีย์เวิร์ดที่ตรงกับการค้นหา</p>
+                    </div>
+                `;
+            }
+            
+            updateStats();
+        }
+
+        function getMessageTypeText(type) {
+            switch(type) {
+                case 'text': return 'ข้อความธรรมดา';
+                case 'image': return 'รูปภาพ';
+                case 'flex': return 'Flex Message';
+                default: return 'ข้อความธรรมดา';
+            }
+        }
+
+        function getContentPreview(keyword) {
+            switch(keyword.type) {
+                case 'text':
+                    return keyword.content.length > 100 ? keyword.content.substring(0, 100) + '...' : keyword.content;
+                case 'image':
+                    return `รูปภาพ: ${keyword.content}${keyword.altText ? '\nAlt: ' + keyword.altText : ''}`;
+                case 'flex':
+                    try {
+                        const flexObj = JSON.parse(keyword.content);
+                        return `Flex Message (${flexObj.type || 'bubble'})`;
+                    } catch (e) {
+                        return 'Flex Message (JSON ไม่ถูกต้อง)';
+                    }
+                default:
+                    return keyword.content;
+            }
+        }
+
+        function toggleKeyword(id) {
+            const keyword = keywords.find(k => k.id === id);
+            if (keyword) {
+                keyword.active = !keyword.active;
+                populateKeywords();
+                showNotification(`${keyword.active ? 'เปิด' : 'ปิด'}ใช้งานคีย์เวิร์ด "${keyword.keyword}" แล้ว`, 'success');
+            }
+        }
+
+        // =======================================================
+        // 👉 ส่วนที่แก้ไขแล้ว: ฟังก์ชันลบคีย์เวิร์ด
+        // =======================================================
+        async function deleteKeyword(id) {
+            const keywordToDelete = keywords.find(k => k.id === id);
+            
+            if (keywordToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบคีย์เวิร์ด "${keywordToDelete.keyword}"?`)) {
+                
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('keyword', keywordToDelete.keyword);
+
+                try {
+                    showNotification('กำลังลบข้อมูล...', 'info');
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                         throw new Error(`Server responded with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        keywords = keywords.filter(k => k.id !== id);
+                        populateKeywords();
+                        updateStats();
+                        showNotification(`ลบคีย์เวิร์ด "${keywordToDelete.keyword}" สำเร็จ!`, 'success');
+                    } else {
+                        throw new Error(result.message || 'ไม่สามารถลบข้อมูลใน Google Sheet ได้');
+                    }
+
+                } catch (error) {
+                    console.error('Error deleting keyword:', error);
+                    showNotification('เกิดข้อผิดพลาดในการลบ: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function filterKeywords() {
+            populateKeywords();
+        }
+
+        // Flex Message Functions
+        function validateFlexJson() {
+            const jsonInput = document.getElementById('flexJson').value;
+            const validationDiv = document.getElementById('jsonValidation');
+            
+            try {
+                const parsed = JSON.parse(jsonInput);
+                validationDiv.innerHTML = `
+                    <div class="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-lg">
+                        <i class="fas fa-check-circle mr-2"></i>JSON ถูกต้อง! ประเภท: ${parsed.type || 'ไม่ระบุ'}
+                    </div>
+                `;
+                validationDiv.classList.remove('hidden');
+            } catch (error) {
+                validationDiv.innerHTML = `
+                    <div class="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-2"></i>JSON ไม่ถูกต้อง: ${error.message}
+                    </div>
+                `;
+                validationDiv.classList.remove('hidden');
+            }
+        }
+
+        function showFlexExamples() {
+            const examples = [
+                {
+                    name: 'ข้อความธรรมดา',
+                    json: '{"type":"bubble","body":{"type":"box","layout":"vertical","contents":[{"type":"text","text":"สวัสดีครับ!","weight":"bold","size":"xl"}]}}'
+                },
+                {
+                    name: 'การ์ดข้อมูล',
+                    json: '{"type":"bubble","hero":{"type":"image","url":"https://via.placeholder.com/400x200","size":"full","aspectRatio":"20:13","aspectMode":"cover"},"body":{"type":"box","layout":"vertical","contents":[{"type":"text","text":"ชื่อสินค้า","weight":"bold","size":"xl"},{"type":"text","text":"รายละเอียดสินค้า","size":"md","color":"#666666","wrap":true}]},"footer":{"type":"box","layout":"vertical","spacing":"sm","contents":[{"type":"button","style":"primary","action":{"type":"message","label":"สั่งซื้อ","text":"สั่งซื้อสินค้า"}}]}}'
+                },
+                {
+                    name: 'เมนูปุ่ม',
+                    json: '{"type":"bubble","body":{"type":"box","layout":"vertical","contents":[{"type":"text","text":"เลือกเมนู","weight":"bold","size":"xl"}]},"footer":{"type":"box","layout":"vertical","spacing":"sm","contents":[{"type":"button","style":"primary","action":{"type":"message","label":"เมนู 1","text":"เมนู 1"}},{"type":"button","style":"secondary","action":{"type":"message","label":"เมนู 2","text":"เมนู 2"}}]}}'
+                }
+            ];
+
+            let exampleHtml = '<div class="space-y-3">';
+            examples.forEach(example => {
+                exampleHtml += `
+                    <div class="bg-white/10 p-3 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-white font-medium">${example.name}</span>
+                            <button onclick="useFlexExample('${example.json.replace(/'/g, "\\'")}'); hideFlexExamples();" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition-all">
+                                <i class="fas fa-copy mr-1"></i>ใช้
+                            </button>
+                        </div>
+                        <pre class="text-xs text-white/70 overflow-x-auto">${JSON.stringify(JSON.parse(example.json), null, 2).substring(0, 100)}...</pre>
+                    </div>
+                `;
+            });
+            exampleHtml += '</div>';
+
+            const overlay = document.createElement('div');
+            overlay.id = 'flexExamplesOverlay';
+            overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-60';
+            overlay.innerHTML = `
+                <div class="glass rounded-2xl p-6 w-[600px] max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-white">
+                            <i class="fas fa-clipboard-list mr-2"></i>ตัวอย่าง Flex Message
+                        </h3>
+                        <button onclick="hideFlexExamples()" class="text-white hover:text-gray-300 text-2xl">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    ${exampleHtml}
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function hideFlexExamples() {
+            const overlay = document.getElementById('flexExamplesOverlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        function useFlexExample(jsonString) {
+            document.getElementById('flexJson').value = JSON.stringify(JSON.parse(jsonString), null, 2);
+            validateFlexJson();
+        }
+
+        // Admin Management
+        function showAdminManagement() {
+            document.getElementById('adminModal').classList.remove('hidden');
+            populateAdminList();
+            hideUserMenu();
+        }
+
+        function hideAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function addAdmin() {
+            const name = document.getElementById('newAdminName').value.trim();
+            const password = document.getElementById('newAdminPassword').value.trim();
+            
+            if (!name || !password) {
+                showNotification('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+            
+            if (admins.find(admin => admin.name === name)) {
+                showNotification('ชื่อแอดมินนี้มีอยู่แล้ว', 'error');
+                return;
+            }
+            
+            const newAdmin = {
+                id: Date.now(),
+                name: name,
+                password: password,
+                active: true,
+                lastLogin: null
+            };
+            
+            admins.push(newAdmin);
+            populateAdminList();
+            document.getElementById('newAdminName').value = '';
+            document.getElementById('newAdminPassword').value = '';
+            showNotification(`เพิ่มแอดมิน "${name}" สำเร็จ!`, 'success');
+            updateStats();
+        }
+
+        function populateAdminList() {
+            const container = document.getElementById('adminList');
+            container.innerHTML = admins.map(admin => `
+                <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-user-shield text-blue-400"></i>
+                        <div>
+                            <span class="text-white font-medium">${admin.name}</span>
+                            <div class="text-xs text-white/60">
+                                ${admin.lastLogin ? 'เข้าใช้ล่าสุด: ' + new Date(admin.lastLogin).toLocaleString('th-TH') : 'ยังไม่เคยเข้าใช้'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-${admin.active ? 'green' : 'red'}-500 text-white text-xs px-2 py-1 rounded">
+                            ${admin.active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                        </span>
+                        ${admin.id !== 1 ? `
+                            <button onclick="toggleAdmin(${admin.id})" class="text-yellow-300 hover:text-yellow-100 text-sm">
+                                <i class="fas fa-${admin.active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button onclick="deleteAdmin(${admin.id})" class="text-red-300 hover:text-red-100 transition-all text-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleAdmin(id) {
+            const admin = admins.find(a => a.id === id);
+            if (admin) {
+                admin.active = !admin.active;
+                populateAdminList();
+                showNotification(`${admin.active ? 'เปิด' : 'ปิด'}ใช้งานแอดมิน "${admin.name}" แล้ว`, 'success');
+                updateStats();
+            }
+        }
+
+        function deleteAdmin(id) {
+            const admin = admins.find(a => a.id === id);
+            if (admin && confirm(`ต้องการลบแอดมิน "${admin.name}" หรือไม่?`)) {
+                admins = admins.filter(a => a.id !== id);
+                populateAdminList();
+                showNotification(`ลบแอดมิน "${admin.name}" แล้ว`, 'success');
+                updateStats();
+            }
+        }
+
+        // Data Population
+        function populateData() {
+            populateKeywords();
+            populateRecentActivity();
+            populatePopularKeywords();
+            updateStats();
+        }
+
+        function populateRecentActivity() {
+            const activities = [
+                { icon: 'fas fa-user-plus', title: 'ผู้ใช้ใหม่เข้าร่วม', desc: 'user_12345 เข้าร่วมระบบ', time: '2 นาทีที่แล้ว' },
+                { icon: 'fas fa-comment', title: 'ข้อความใหม่', desc: 'ได้รับข้อความจาก user_67890', time: '5 นาทีที่แล้ว' },
+                { icon: 'fas fa-cog', title: 'อัพเดทการตั้งค่า', desc: 'เปลี่ยนแปลงข้อความต้อนรับ', time: '10 นาทีที่แล้ว' }
+            ];
+
+            const container = document.getElementById('recentActivity');
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-center space-x-4 p-4 bg-white/10 rounded-lg card-hover">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="${activity.icon} text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-white">${activity.title}</p>
+                        <p class="text-sm text-white/70">${activity.desc}</p>
+                    </div>
+                    <span class="text-sm text-white/60">${activity.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function populatePopularKeywords() {
+            const sortedKeywords = keywords
+                .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
+                .slice(0, 5);
+                
+            const container = document.getElementById('popularKeywords');
+            container.innerHTML = sortedKeywords.map(keyword => `
+                <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
+                    <span class="text-white">"${keyword.keyword}"</span>
+                    <span class="bg-blue-500 text-white text-sm px-2 py-1 rounded">${keyword.usageCount || 0} ครั้ง</span>
+                </div>
+            `).join('');
+            
+            if (sortedKeywords.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-white/60">
+                        <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                        <p>ยังไม่มีข้อมูลการใช้งาน</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const totalKeywords = keywords.length;
+            const activeKeywords = keywords.filter(k => k.active).length;
+            const totalMessages = keywords.length;
+            const activeMessages = activeKeywords;
+            
+            document.getElementById('totalKeywords').textContent = totalKeywords;
+            document.getElementById('totalMessages').textContent = totalMessages;
+            document.getElementById('activeMessages').textContent = activeMessages;
+            document.getElementById('adminCount').textContent = admins.filter(a => a.active).length;
+            
+            const activePercentage = totalKeywords > 0 ? (activeKeywords / totalKeywords) * 100 : 0;
+            document.getElementById('activeMessagesBar').style.width = activePercentage + '%';
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                info: 'fas fa-info-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
+            
+            notification.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 slide-in`;
+            notification.innerHTML = `
+                <i class="${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function testConnection() {
+            showNotification('กำลังทดสอบการเชื่อมต่อ...', 'info');
+            
+            setTimeout(() => {
+                const success = Math.random() > 0.3;
+                if (success) {
+                    showNotification('เชื่อมต่อสำเร็จ!', 'success');
+                    document.getElementById('connectionStatus').textContent = 'เชื่อมต่อแล้ว';
+                    document.getElementById('connectionDot').className = 'w-3 h-3 bg-green-400 rounded-full animate-pulse';
+                } else {
+                    showNotification('การเชื่อมต่อล้มเหลว กรุณาตรวจสอบข้อมูล', 'error');
+                    document.getElementById('connectionStatus').textContent = 'ไม่สามารถเชื่อมต่อได้';
+                    document.getElementById('connectionDot').className = 'w-3 h-3 bg-red-400 rounded-full';
+                }
+            }, 2000);
+        }
+
+        function saveSettings() {
+            showNotification('บันทึกการตั้งค่าสำเร็จ!', 'success');
+        }
+
+        // Real-time Updates
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                const todayMessages = document.getElementById('todayMessages');
+                if (todayMessages) {
+                    const current = parseInt(todayMessages.textContent);
+                    todayMessages.textContent = current + Math.floor(Math.random() * 3);
+                }
+                
+                if (keywords.length > 0) {
+                    const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+                    if (randomKeyword.active && Math.random() > 0.8) {
+                        randomKeyword.usageCount = (randomKeyword.usageCount || 0) + 1;
+                        populatePopularKeywords();
+                    }
+                }
+            }, 10000);
+        }
+
+        // Mobile Sidebar Functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#userMenu') && !event.target.closest('button[onclick="toggleUserMenu()"]')) {
+                hideUserMenu();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                closeMobileSidebar();
+            }
+        });
+    </script>
+</body>
+</html>
