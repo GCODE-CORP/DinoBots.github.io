@@ -29,7 +29,6 @@
         
         <main class="md:ml-64 pt-16 p-4 md:p-6 mobile-main">
             <div id="dashboard" class="section fade-in"><div class="mb-6"><h2 class="text-2xl font-bold text-white">แดชบอร์ด</h2><p class="text-white/70">ภาพรวมการใช้งาน</p></div><div class="glass rounded-xl p-4 md:p-6 mb-6 card-hover"><h3 class="text-lg font-semibold text-white mb-4">ข้อมูล LINE Official Account</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="bg-white/10 rounded-lg p-3"><div class="flex items-center space-x-3"><i class="fas fa-store text-2xl text-blue-400"></i><div><p class="font-medium text-white">ชื่อบัญชี</p><p id="oaName" class="text-white/70 text-sm">Loading...</p></div></div></div><div class="bg-white/10 rounded-lg p-3"><div class="flex items-center space-x-3"><i class="fas fa-id-card text-2xl text-green-400"></i><div><p class="font-medium text-white">Channel ID</p><p id="channelId" class="text-white/70 text-sm">Loading...</p></div></div></div><div class="bg-white/10 rounded-lg p-3"><div class="flex items-center space-x-3"><i class="fas fa-users text-2xl text-purple-400"></i><div><p class="font-medium text-white">ผู้ติดตาม</p><p id="followerCount" class="text-white/70 text-sm">Loading...</p></div></div></div></div></div></div>
-
             <div id="keywords" class="section hidden fade-in"><div class="mb-6"><h2 class="text-2xl font-bold text-white">จัดการคีย์เวิร์ด</h2><p class="text-white/70">เพิ่ม ลบ และแก้ไขคีย์เวิร์ด</p></div><div class="glass rounded-xl p-4 md:p-6"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-white">รายการคีย์เวิร์ด</h3><button onclick="document.getElementById('addKeywordModal').classList.remove('hidden')" class="bg-blue-500 text-white px-4 py-2 rounded-lg ai-glow"><i class="fas fa-plus mr-2"></i>เพิ่มใหม่</button></div><div id="keywordsList" class="space-y-2"></div></div></div>
         </main>
         
@@ -39,43 +38,30 @@
     <div id="notificationContainer" class="fixed top-4 right-4 z-[100] space-y-2"></div>
 
     <script>
-        // =======================================================
-        // SCRIPT SECTION (ฉบับสมบูรณ์)
-        // =======================================================
-        
         let currentUser = null, keywords = [], admins = [];
-
-        // ** ❗️แก้ไข: ใส่ URL และ TOKEN ของคุณที่นี่ **
-        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxv3_BFKbEAXTtCl6gyknyHgq709ShGJ30uFCtZh21wVxs3xzf7lKsLWBSJgsvbC1eWg/exec";
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_E_a68wFz_Zz6k5Fz_E_a68wFz_Zz6k5Fz/exec"; // Placeholder
         const CHANNEL_ACCESS_TOKEN = "5DxoEG4RKgfSFRvdQ424rQuDhDTcz13Yb3khnbABLZQnVtNawr7oP1Yehs1EOM/cCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH3BqDeYB8Ued5OG/KkWoHzyHbAe84eZsdxk6lmaLzc0nAdB04t89/1O/w1cDnyilFU=";
 
-        // =======================================================
-        // 👤 AUTH & ADMIN MANAGEMENT
-        // =======================================================
         async function login(event) {
             event.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             if (!username || !password) return showNotification('กรุณากรอกข้อมูลให้ครบ', 'error');
-
             showNotification('กำลังตรวจสอบข้อมูล...', 'info');
             const formData = new FormData();
             formData.append('source', 'admin_panel');
             formData.append('action', 'login');
             formData.append('username', username);
             formData.append('password', password);
-
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
                 const result = await response.json();
-
                 if (result.status === 'success') {
                     currentUser = result.user;
                     document.getElementById('currentUserDisplay').textContent = currentUser.name;
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('mainApp').classList.remove('hidden');
-                    
                     showNotification(`ยินดีต้อนรับ, ${currentUser.name}!`, 'success');
                     fetchBotInfo();
                     fetchKeywords();
@@ -83,11 +69,9 @@
                     throw new Error(result.message);
                 }
             } catch (error) {
-                console.error("Login Error:", error);
                 showNotification(`ล็อกอินล้มเหลว: ${error.message}`, 'error');
             }
         }
-
         async function fetchAdmins() {
             try {
                 const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAdmins`);
@@ -100,18 +84,15 @@
                 showNotification('ไม่สามารถโหลดรายชื่อแอดมินได้: ' + error.message, 'error');
             }
         }
-        
         async function addAdmin() {
             const name = document.getElementById('newAdminName').value.trim();
             const password = document.getElementById('newAdminPassword').value.trim();
             if (!name || !password) return showNotification('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
-
             const formData = new FormData();
             formData.append('source', 'admin_panel');
             formData.append('action', 'addAdmin');
             formData.append('name', name);
             formData.append('password', password);
-
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData });
                 const result = await response.json();
@@ -125,16 +106,13 @@
                 showNotification(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
             }
         }
-
         async function deleteAdmin(id) {
             if (id === 1) return showNotification('ไม่สามารถลบ Super Admin ได้', 'warning');
             if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบแอดมิน ID: ${id}?`)) return;
-            
             const formData = new FormData();
             formData.append('source', 'admin_panel');
             formData.append('action', 'deleteAdmin');
             formData.append('id', id);
-
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData });
                 const result = await response.json();
@@ -146,25 +124,15 @@
                 showNotification(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
             }
         }
-
         function populateAdminList() {
             const container = document.getElementById('adminList');
             if (!admins || admins.length === 0) {
                 container.innerHTML = `<p class="text-white/60 text-center">ไม่พบข้อมูลแอดมิน</p>`;
                 return;
             }
-            container.innerHTML = admins.map(admin => `
-                <div class="flex justify-between items-center p-3 bg-white/10 rounded-lg">
-                    <div class="flex items-center space-x-3"><i class="fas fa-user-shield text-blue-400"></i><div><span class="text-white font-medium">${admin.name} (ID: ${admin.id})</span><div class="text-xs text-white/60">${admin.lastLogin ? 'เข้าใช้ล่าสุด: ' + new Date(admin.lastLogin).toLocaleString('th-TH') : 'ยังไม่เคยเข้าใช้'}</div></div></div>
-                    <div class="flex items-center space-x-2"><span class="bg-${admin.active ? 'green' : 'red'}-500 text-white text-xs px-2 py-1 rounded">${admin.active ? 'Active' : 'Inactive'}</span>${admin.id !== 1 ? `<button onclick="deleteAdmin(${admin.id})" class="text-red-300 hover:text-red-100"><i class="fas fa-trash"></i></button>` : ''}</div>
-                </div>`).join('');
+            container.innerHTML = admins.map(admin => `<div class="flex justify-between items-center p-3 bg-white/10 rounded-lg"><div><span class="text-white font-medium">${admin.name} (ID: ${admin.id})</span></div><div class="flex items-center space-x-2"><span class="bg-${admin.active ? 'green' : 'red'}-500 text-white text-xs px-2 py-1 rounded">${admin.active ? 'Active' : 'Inactive'}</span>${admin.id !== 1 ? `<button onclick="deleteAdmin(${admin.id})" class="text-red-300 hover:text-red-100"><i class="fas fa-trash"></i></button>` : ''}</div></div>`).join('');
         }
-        
         function logout() { window.location.reload(); }
-
-        // =======================================================
-        // 🔑 KEYWORD MANAGEMENT
-        // =======================================================
         async function fetchKeywords() {
             showNotification('กำลังโหลดคีย์เวิร์ด...', 'info');
             try {
@@ -178,19 +146,16 @@
                 showNotification('ไม่สามารถโหลดคีย์เวิร์ดได้: ' + error.message, 'error');
             }
         }
-
         function addKeyword(event) {
             event.preventDefault();
             const keywordText = document.getElementById('newKeyword').value.trim();
             if (!keywordText) return showNotification('กรุณากรอกคีย์เวิร์ด', 'error');
-
             const messageType = document.getElementById('messageType').value;
             let content = '', altText = '';
             if (messageType === 'text') content = document.getElementById('messageContent').value.trim();
             else if (messageType === 'image') content = document.getElementById('imageUrl').value.trim();
             else if (messageType === 'flex') content = document.getElementById('flexJson').value.trim();
             if (!content) return showNotification('กรุณากรอกเนื้อหา', 'error');
-            
             const formData = new FormData();
             formData.append('source', 'admin_panel');
             formData.append('action', 'addKeyword');
@@ -198,7 +163,6 @@
             formData.append('type', messageType);
             formData.append('content', content);
             formData.append('altText', altText);
-
             showNotification('กำลังบันทึก...', 'info');
             fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
@@ -211,15 +175,12 @@
                 })
                 .catch(error => showNotification('เกิดข้อผิดพลาด: ' + error.message, 'error'));
         }
-
         async function deleteKeyword(keywordText) {
             if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบคีย์เวิร์ด "${keywordText}"?`)) return;
-            
             const formData = new FormData();
             formData.append('source', 'admin_panel');
             formData.append('action', 'deleteKeyword');
             formData.append('keyword', keywordText);
-
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: formData });
                 const result = await response.json();
@@ -231,36 +192,24 @@
                 showNotification(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
             }
         }
-
         function populateKeywords() {
             const container = document.getElementById('keywordsList');
             if (!keywords || keywords.length === 0) {
                 container.innerHTML = `<p class="text-white/60 text-center py-4">ยังไม่มีคีย์เวิร์ด</p>`;
                 return;
             }
-            container.innerHTML = keywords.map(k => `
-                <div class="glass p-3 rounded-lg flex justify-between items-center">
-                    <div class="truncate"><i class="fas fa-tag text-blue-300 mr-3"></i><span class="font-medium text-white">${k.keyword}</span><p class="text-xs text-white/60 truncate">ประเภท: ${k.type}</p></div>
-                    <div><button onclick="deleteKeyword('${k.keyword}')" class="text-red-400 hover:text-red-200 px-2"><i class="fas fa-trash"></i></button></div>
-                </div>
-            `).join('');
+            container.innerHTML = keywords.map(k => `<div class="glass p-3 rounded-lg flex justify-between items-center"><div><i class="fas fa-tag text-blue-300 mr-3"></i><span class="font-medium text-white">${k.keyword}</span></div><div><button onclick="deleteKeyword('${k.keyword}')" class="text-red-400 hover:text-red-200 px-2"><i class="fas fa-trash"></i></button></div></div>`).join('');
         }
-        
         function closeKeywordModal() {
             document.getElementById('addKeywordModal').classList.add('hidden');
             document.getElementById('addKeywordModal').querySelector('form').reset();
         }
-
         function toggleMessageInputs() {
             const type = document.getElementById('messageType').value;
             document.getElementById('textInput').style.display = type === 'text' ? 'block' : 'none';
             document.getElementById('imageInput').style.display = type === 'image' ? 'block' : 'none';
             document.getElementById('flexInput').style.display = type === 'flex' ? 'block' : 'none';
         }
-
-        // =======================================================
-        // 🤖 BOT INFO & UI FUNCTIONS
-        // =======================================================
         async function fetchBotInfo() {
             const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; 
             const botInfoApiUrl = 'https://api.line.me/v2/bot/info';
@@ -271,18 +220,15 @@
                     const data = await infoRes.json();
                     document.getElementById('oaName').textContent = data.displayName;
                     document.getElementById('channelId').textContent = data.userId;
-                    // Follower count requires special permissions, so we'll fetch it separately and handle errors gracefully.
                     fetchFollowerCount();
                 } else {
                     throw new Error("Failed to fetch bot info");
                 }
             } catch (error) {
-                console.error('Error fetching bot info:', error);
                 showNotification('ไม่สามารถดึงข้อมูลบอทได้ (อาจต้องเปิด CORS Proxy)', 'error');
                 document.getElementById('oaName').textContent = 'Error';
             }
         }
-        
         async function fetchFollowerCount() {
             const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; 
             const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -297,18 +243,15 @@
                      document.getElementById('followerCount').textContent = 'ไม่มีสิทธิ์เข้าถึง';
                 }
             } catch (e) {
-                console.error("Follower count error:", e);
                 document.getElementById('followerCount').textContent = 'Error';
             }
         }
-
         function showSection(sectionName, element) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(sectionName).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('bg-white/20'));
             if (element) element.classList.add('bg-white/20');
         }
-
         function showAdminManagement() {
             fetchAdmins();
             document.getElementById('adminModal').classList.remove('hidden');
@@ -319,7 +262,6 @@
         function hideUserMenu() { document.getElementById('userMenu').classList.add('hidden'); }
         function toggleMobileSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobileOverlay').classList.toggle('active'); }
         function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('mobileOverlay').classList.remove('active'); }
-
         function showNotification(message, type = 'info') {
             const container = document.getElementById('notificationContainer');
             const notif = document.createElement('div');
@@ -330,7 +272,6 @@
             container.appendChild(notif);
             setTimeout(() => { notif.remove(); }, 3000);
         }
-
         document.addEventListener('click', (event) => {
             if (!event.target.closest('#userMenu') && !event.target.closest('button[onclick="toggleUserMenu()"]')) {
                 hideUserMenu();
