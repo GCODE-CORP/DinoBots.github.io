@@ -1,6 +1,6 @@
 // ============== ⚙️ การตั้งค่า ==============
 // ❗️**สำคัญ:** แก้ไขค่า 4 ตัวแปรนี้ให้ตรงกับโปรเจกต์ของคุณ
-const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1eR6ClXniPFfNRYOkbQTsslgd3bIOUF326uY5dqLOqd8/edit  "; //  << 🔗 วาง URL ของ Google Sheet ที่นี่
+const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1eR6ClXniPFfNRYOkbQTsslgd3bIOUF326uY5dqLOqd8/edit"; //  << 🔗 วาง URL ของ Google Sheet ที่นี่
 const KEYWORD_SHEET_NAME = "Keywords";
 const ADMIN_SHEET_NAME = "Admins";
 const CHANNEL_ACCESS_TOKEN = "5DxoEG4RKgfSFRvdQ424rQuDhDTcz13Yb3khnbABLZQnVtNawr7oP1Yehs1EOM/cCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH3BqDeYB8Ued5OG/KkWoHzyHbAe84eZsdxk6lmaLzc0nAdB04t89/1O/w1cDnyilFU="; // << 🔑 วาง Channel Access Token ที่นี่
