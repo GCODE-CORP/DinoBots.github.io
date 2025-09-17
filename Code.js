@@ -1,9 +1,8 @@
 // ============== ⚙️ การตั้งค่า ==============
-// ❗️**สำคัญ:** แก้ไขค่า 4 ตัวแปรนี้ให้ตรงกับโปรเจกต์ของคุณ
-const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1eR6ClXniPFfNRYOkbQTsslgd3bIOUF326uY5dqLOqd8/edit"; //  << 🔗 วาง URL ของ Google Sheet ที่นี่
+const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1eR6ClXniPFfNRYOkbQTsslgd3bIOUF326uY5dqLOqd8/edit";
 const KEYWORD_SHEET_NAME = "Keywords";
 const ADMIN_SHEET_NAME = "Admins";
-const CHANNEL_ACCESS_TOKEN = "5DxoEG4RKgfSFRvdQ424rQuDhDTcz13Yb3khnbABLZQnVtNawr7oP1Yehs1EOM/cCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH3BqDeYB8Ued5OG/KkWoHzyHbAe84eZsdxk6lmaLzc0nAdB04t89/1O/w1cDnyilFU="; // << 🔑 วาง Channel Access Token ที่นี่
+const CHANNEL_ACCESS_TOKEN = "5DxoEG4RKgfSFRvdQ424rQuDhDTcz13Yb3khnbABLZQnVtNawr7oP1Yehs1EOM/cCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH3BqDeYB8Ued5OG/KkWoHzyHbAe84eZsdxk6lmaLzc0nAdB04t89/1O/w1cDnyilFU=";
 
 // ============== 🖥️ ส่วนแสดงผลหน้าเว็บ (Web App) ==============
 function doGet(e) {
@@ -23,7 +22,6 @@ function doPost(e) {
   try {
     const params = e.parameter;
 
-    // --- ตรวจสอบ Action ที่ถูกส่งมาจากหน้า Admin Panel ---
     if (params.source === 'admin_panel') {
       switch (params.action) {
         case 'login': return handleLogin(params);
@@ -35,7 +33,6 @@ function doPost(e) {
       }
     }
 
-    // --- ส่วนจัดการ Webhook ที่มาจาก LINE (ถ้าไม่ใช่ Action จาก Admin) ---
     const events = JSON.parse(e.postData.contents).events;
     events.forEach(handleMessageEvent);
     return createJsonResponse({ status: 'success', source: 'webhook' });
@@ -51,7 +48,7 @@ function getAdmins() {
   try {
     const sheet = SpreadsheetApp.openByUrl(SPREADSHEET_URL).getSheetByName(ADMIN_SHEET_NAME);
     const data = sheet.getDataRange().getValues();
-    const headers = data.shift();
+    const headers = data.shift(); // Remove header row
     const admins = data.map(row => ({
       id: row[0], name: row[1], password: row[2], active: row[3], lastLogin: row[4]
     }));
@@ -64,13 +61,15 @@ function getAdmins() {
 function handleLogin(params) {
   try {
     const sheet = SpreadsheetApp.openByUrl(SPREADSHEET_URL).getSheetByName(ADMIN_SHEET_NAME);
+    if (!sheet) throw new Error(`Sheet "${ADMIN_SHEET_NAME}" not found.`);
     const data = sheet.getDataRange().getValues();
+    
     for (let i = 1; i < data.length; i++) {
       const name = (data[i][1] || '').toString().trim();
       const password = (data[i][2] || '').toString();
       const isActive = data[i][3];
 
-      if (name === params.username && password === params.password) {
+      if (name.toLowerCase() === params.username.toLowerCase() && password === params.password) {
         if (isActive === true) {
           sheet.getRange(i + 1, 5).setValue(new Date());
           return createJsonResponse({ status: 'success', user: { name: name } });
@@ -81,6 +80,7 @@ function handleLogin(params) {
     }
     return createJsonResponse({ status: 'error', message: 'Invalid username or password.' });
   } catch (e) {
+    Logger.log("Error in handleLogin: " + e);
     return createJsonResponse({ status: 'error', message: e.message });
   }
 }
@@ -158,15 +158,42 @@ function deleteRowByKeyword(keywordToDelete) {
 
 // ============== 💬 ส่วนจัดการการตอบกลับ LINE ==============
 function handleMessageEvent(event) {
-    // ... (Your existing handleMessageEvent, createReplyMessage, sendReply functions) ...
+    if (event.type !== "message" || event.message.type !== "text") return;
+    const sheet = SpreadsheetApp.openByUrl(SPREADSHEET_URL).getSheetByName(KEYWORD_SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
+    const userMessage = event.message.text.toLowerCase().trim();
+    for (let i = 1; i < data.length; i++) {
+        const [ , keyword, type, content, altText, isActive] = data[i];
+        if (keyword && isActive && userMessage.includes(keyword.toLowerCase().trim())) {
+            const replyMessage = createReplyMessage(type, content, altText);
+            if (replyMessage) {
+                sendReply(event.replyToken, [replyMessage]);
+                break;
+            }
+        }
+    }
 }
 
 function createReplyMessage(type, content, altText) {
-    // ...
+    try {
+        if (type === 'flex') return { "type": "flex", "altText": altText || "Flex Message", "contents": JSON.parse(content) };
+        if (type === 'image') return { "type": "image", "originalContentUrl": content, "previewImageUrl": content };
+        return { "type": "text", "text": content };
+    } catch (e) {
+        Logger.log(`Error creating reply message: ${e}`);
+        return null;
+    }
 }
 
 function sendReply(replyToken, messages) {
-    // ...
+    const url = 'https://api.line.me/v2/bot/message/reply';
+    const options = {
+        'method': 'post',
+        'contentType': 'application/json',
+        'payload': JSON.stringify({ 'replyToken': replyToken, 'messages': messages }),
+        'headers': { 'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN }
+    };
+    try { UrlFetchApp.fetch(url, options); } catch (e) { Logger.log("Error sending reply: " + e); }
 }
 
 // ============== 🛠️ ฟังก์ชันเสริม ==============
