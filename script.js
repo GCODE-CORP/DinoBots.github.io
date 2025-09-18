@@ -1,9 +1,7 @@
 // --- Configuration ---
-// **สำคัญ: แก้ไข URL และ LIFF ID ที่นี่**
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwPzuK1bxht_cvFPRwmzAbsJOLPiBk5r4TPS8s5W9S17wQYpAQgo4VlEpqMfstXmbk/exec';
-const myLiffId = "2008123612-GELz9yyn";
-// **สำคัญ: เปลี่ยนค่านี้เป็น User ID ของคุณ**
-const SUPER_ADMIN_UID = "Uf6c342f0263f3532f814b6c318991a03";
+const myLiffId = "2008135136-WVg5PeG7";
+const SUPER_ADMIN_UID = "Uf6c342f0263f3532f814b6c318991a03"; // **สำคัญ: เปลี่ยนค่านี้เป็น User ID ของคุณ**
 
 // --- Global Data Storage ---
 let usersData = [];
@@ -12,15 +10,19 @@ let settingsData = {};
 let adminsData = [];
 let filteredUsers = [];
 let selectedKeyword = null;
-let currentUser = null; // ข้อมูลผู้ใช้ปัจจุบันที่ล็อกอิน
+let currentUser = null;
 
 // --- Core Functions for API Communication ---
 async function fetchData(sheetName) {
     try {
         const response = await fetch(`${WEB_APP_URL}?sheet=${sheetName}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const result = await response.json();
-        if (!result.success) throw new Error(result.error);
+        if (!result.success) {
+            throw new Error(result.error);
+        }
         return result.data;
     } catch (error) {
         console.error(`Error fetching data from ${sheetName}:`, error);
@@ -41,9 +43,13 @@ async function postData(sheetName, action, data) {
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(data)
         });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const result = await response.json();
-        if (!result.success) throw new Error(result.error);
+        if (!result.success) {
+            throw new Error(result.error);
+        }
         return result.result;
     } catch (error) {
         console.error(`Error posting data to ${sheetName} with action ${action}:`, error);
@@ -197,7 +203,7 @@ function renderUsersTable() {
         const statusBadge = getStatusBadge(user.status);
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50';
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center"><div class="ml-4"><div class="text-sm font-medium text-gray-900">${user.display_name}</div><div class="text-sm text-gray-500">ID: ${user.user_id}</div></div></div></td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.join_date}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2"><button onclick="viewUserProfile('${user.user_id}')" class="text-blue-600 hover:text-blue-900">ดูข้อมูล</button></div></td>`;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center"><div class="ml-4"><div class="text-sm font-medium text-gray-900">${user.display_name}</div><div class="text-sm text-gray-500">ID: ${user.user_id}</div></div></div></td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(user.join_date)}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2"><button onclick="viewUserProfile('${user.user_id}')" class="text-blue-600 hover:text-blue-900">ดูข้อมูล</button></div></td>`;
         tbody.appendChild(row);
     });
 }
@@ -245,13 +251,13 @@ function renderAdminsTable() {
     adminsData.forEach(admin => {
         const isSuperAdmin = admin.user_id === SUPER_ADMIN_UID;
         const statusBadge = isSuperAdmin ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Super Admin</span>' : getStatusBadge(admin.status);
-        const toggleButton = isSuperAdmin 
+        const actionButtons = isSuperAdmin 
             ? '<span>-</span>' 
-            : `<button onclick="toggleAdminStatus('${admin.user_id}', '${admin.status}')" class="text-yellow-600 hover:text-yellow-900">${admin.status === 'active' ? 'ปิด' : 'เปิด'}</button>`;
+            : `<button onclick="toggleAdminStatus('${admin.user_id}', '${admin.status}')" class="text-yellow-600 hover:text-yellow-900">${admin.status === 'active' ? 'ปิด' : 'เปิด'}</button><button onclick="deleteAdmin('${admin.user_id}')" class="text-red-600 hover:text-red-900 ml-2">ลบ</button>`;
         
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50';
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${admin.display_name || 'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${admin.user_id}</td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2">${toggleButton}</div></td>`;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${admin.display_name || 'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${admin.user_id}</td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2">${actionButtons}</div></td>`;
         tbody.appendChild(row);
     });
 }
@@ -340,10 +346,7 @@ function botSettings() {
     document.getElementById('welcomeMessageInput').value = settingsData.welcome_message || '';
     document.getElementById('botStatusInput').value = settingsData.bot_status || 'online';
 }
-function manageAdmins() {
-    showSection('adminsSection');
-    fetchAndRenderAdmins();
-}
+function manageAdmins() { showSection('adminsSection'); fetchAndRenderAdmins(); }
 
 function addKeyword() {
     selectedKeyword = null;
@@ -427,29 +430,18 @@ async function deleteKeyword(keyword) {
 async function addAdmin() {
     const newAdminUID = document.getElementById('newAdminUID').value.trim();
     if (!newAdminUID) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ User ID ของแอดมินใหม่', 'warning'); return; }
-    
-    // ดึงข้อมูลชื่อผู้ใช้จาก LINE API
-    try {
-        const profile = await liff.getProfile(newAdminUID);
-        const newAdminData = { user_id: newAdminUID, display_name: profile.displayName, status: 'active' };
-        const postResult = await postData('Admins', 'add', newAdminData);
 
-        if (postResult) {
-            Swal.fire('สำเร็จ!', postResult, 'success');
-            document.getElementById('newAdminUID').value = '';
-            fetchAndRenderAdmins();
-        }
-    } catch (e) {
-        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูล User ID นี้ได้', 'error');
+    const newAdminData = { user_id: newAdminUID, display_name: 'N/A', status: 'active' };
+    const postResult = await postData('Admins', 'add', newAdminData);
+
+    if (postResult) {
+        Swal.fire('สำเร็จ!', postResult, 'success');
+        document.getElementById('newAdminUID').value = '';
+        fetchAndRenderAdmins();
     }
 }
 
 async function toggleAdminStatus(uid, currentStatus) {
-    if (uid === SUPER_ADMIN_UID) {
-        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถปิดการใช้งาน Super Admin ได้', 'error');
-        return;
-    }
-    
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     const postResult = await postData('Admins', 'update', { user_id: uid, status: newStatus });
     
@@ -457,6 +449,25 @@ async function toggleAdminStatus(uid, currentStatus) {
         Swal.fire('สำเร็จ!', postResult, 'success');
         fetchAndRenderAdmins();
     }
+}
+
+async function deleteAdmin(uid) {
+    Swal.fire({
+        title: 'ยืนยันการลบแอดมิน?',
+        text: `คุณต้องการลบแอดมิน User ID "${uid}" หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ลบเลย',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const postResult = await postData('Admins', 'delete', { user_id: uid });
+            if (postResult) {
+                Swal.fire('ลบสำเร็จ!', postResult, 'success');
+                fetchAndRenderAdmins();
+            }
+        }
+    });
 }
 
 async function saveSettings() {
@@ -550,13 +561,68 @@ function filterUsers() {
     renderUsersTable();
 }
 
-// --- Other Functions ---
-function handleLogout() {
-    liff.logout();
-    window.location.reload();
+function viewUserProfile(userId) {
+    const user = usersData.find(u => u.user_id === userId);
+    if (!user) {
+        Swal.fire('ไม่พบข้อมูล', 'ไม่พบข้อมูลผู้ใช้ที่เลือก', 'error');
+        return;
+    }
+    const statusBadge = getStatusBadge(user.status);
+    const userProfileContent = document.getElementById('userProfileContent');
+    userProfileContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        ${user.display_name ? user.display_name.charAt(0) : 'N/A'}
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-800">${user.display_name || 'N/A'}</h4>
+                        <p class="text-gray-500">User ID: ${user.user_id}</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-700 mb-3">ข้อมูลทั่วไป</h5>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">สถานะ:</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">เข้าร่วมเมื่อ:</span>
+                            <span class="text-gray-800">${formatDateTime(user.join_date)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('userProfileModal').classList.remove('hidden');
+    document.getElementById('userProfileModal').classList.add('flex');
 }
-function exportUsers() { alert('ฟังก์ชัน Export กำลังอยู่ระหว่างการพัฒนา'); }
-function viewUserProfile(userId) { alert(`เปิดข้อมูลโปรไฟล์ผู้ใช้: ${userId}`); }
+
+function closeUserProfileModal() {
+    document.getElementById('userProfileModal').classList.add('hidden');
+    document.getElementById('userProfileModal').classList.remove('flex');
+}
+
+function formatDateTime(isoString) {
+    if (!isoString) return 'ไม่ระบุ';
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) {
+            return isoString;
+        }
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        return new Intl.DateTimeFormat('th-TH', options).format(date);
+    } catch (e) {
+        return isoString;
+    }
+}
+
+// --- Other Functions ---
+function handleLogout() { Swal.fire('การออกจากระบบถูกปิดใช้งานในโหมดพัฒนา', '', 'info'); }
+function exportUsers() { Swal.fire('ฟังก์ชัน Export กำลังอยู่ระหว่างการพัฒนา', '', 'info'); }
 
 // Expose functions to the global scope
 window.initDashboard = initDashboard;
@@ -580,10 +646,11 @@ window.filterUsers = filterUsers;
 window.handleLogout = handleLogout;
 window.exportUsers = exportUsers;
 window.viewUserProfile = viewUserProfile;
+window.closeUserProfileModal = closeUserProfileModal;
 window.renderFlexPreview = renderFlexPreview;
 window.renderBubblePreview = renderBubblePreview;
 window.renderCarouselPreview = renderCarouselPreview;
 window.renderBoxContents = renderBoxContents;
 window.addAdmin = addAdmin;
-
 window.toggleAdminStatus = toggleAdminStatus;
+window.deleteAdmin = deleteAdmin;
