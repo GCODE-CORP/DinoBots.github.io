@@ -74,11 +74,18 @@ function initializeLiff() {
             if (liff.isLoggedIn()) {
                 liff.getProfile()
                     .then(profile => {
-                        currentUser = profile;
-                        checkAdminAccess(profile.userId);
+                        // แสดง User ID บนหน้าจอ
+                        document.getElementById('liff-user-name').textContent = profile.displayName;
+                        document.getElementById('dashboard-content').classList.remove('hidden');
+
+                        // แสดง User ID ของคุณใน SweetAlert เพื่อให้คัดลอกได้ง่าย
+                        Swal.fire({
+                            title: 'User ID ของคุณ',
+                            text: `กรุณาคัดลอก User ID นี้ไปใช้เป็น Super Admin: ${profile.userId}`,
+                            icon: 'info'
+                        });
                     })
                     .catch(err => {
-                        console.error("Error getting LIFF profile:", err);
                         Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถดึงข้อมูลโปรไฟล์ได้', 'error');
                     });
             } else {
@@ -86,7 +93,6 @@ function initializeLiff() {
             }
         })
         .catch((err) => {
-            console.error("LIFF initialization failed:", err);
             Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับ LINE ได้', 'error');
         });
 }
@@ -663,4 +669,3 @@ window.renderBoxContents = renderBoxContents;
 window.addAdmin = addAdmin;
 window.toggleAdminStatus = toggleAdminStatus;
 window.deleteAdmin = deleteAdmin;
-
