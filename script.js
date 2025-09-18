@@ -663,3 +663,4 @@ window.renderBoxContents = renderBoxContents;
 window.addAdmin = addAdmin;
 window.toggleAdminStatus = toggleAdminStatus;
 window.deleteAdmin = deleteAdmin;
+
