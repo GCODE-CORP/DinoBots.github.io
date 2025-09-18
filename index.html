@@ -6,8 +6,6 @@
     <title>DinoBot Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://static.line-scdn.net/liff/2.21.1/sdk.js"></script>
     <style>
         body { font-family: 'Kanit', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #00C851 0%, #00B74A 100%); }
@@ -15,9 +13,10 @@
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .flex-message-card { transform: scale(0.65); transform-origin: top left; width: 154%; margin-bottom: -60px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
-    <div id="dashboard-content" class="hidden">
+    <div id="dashboard-content">
         <header class="gradient-bg text-white shadow-lg">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex items-center justify-between">
@@ -28,7 +27,7 @@
                         <h1 class="text-2xl font-bold">DinoBot Admin</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <span class="text-green-100">สวัสดี, <span id="liff-user-name">...</span></span>
+                        <span class="text-green-100">สวัสดี, แอดมิน</span>
                         <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                             <span class="text-green-600">👤</span>
                         </div>
@@ -103,10 +102,6 @@
                                 <span>⚙️</span>
                                 <span>ตั้งค่าบอท</span>
                             </button>
-                            <button id="adminManagementBtn" onclick="manageAdmins()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 hidden">
-                                <span>👑</span>
-                                <span>จัดการแอดมิน</span>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -131,35 +126,6 @@
                 </div>
             </div>
 
-            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="adminsSection" style="display: none;">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">👑 จัดการแอดมิน</h3>
-                    <button onclick="hideSection('adminsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                        ปิด
-                    </button>
-                </div>
-                <div class="flex items-center space-x-4 mb-6">
-                    <input type="text" id="newAdminUID" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ใส่ User ID ของแอดมินใหม่">
-                    <button onclick="addAdmin()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
-                        + เพิ่มแอดมิน
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full table-auto">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อแอดมิน</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminsTableBody" class="bg-white divide-y divide-gray-200">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-            
             <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="usersSection" style="display: none;">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-semibold text-gray-800">👥 จัดการผู้ใช้</h3>
@@ -350,8 +316,23 @@
             </div>
         </div>
     </div>
+    <div id="liff-loading" class="flex items-center justify-center min-h-screen bg-gray-100 hidden">
+        <div class="text-center p-8 bg-white rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">กำลังเชื่อมต่อกับ DinoBot...</h1>
+            <p class="text-gray-500">โปรดรอสักครู่</p>
+            <div class="mt-4 flex items-center justify-center">
+                <div class="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-green-500"></div>
+            </div>
+        </div>
+    </div>
+    <div id="access-denied" class="flex items-center justify-center min-h-screen bg-gray-100 hidden">
+        <div class="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
+            <div class="text-5xl mb-4">⛔️</div>
+            <h1 class="text-2xl font-bold text-red-600 mb-2">การเข้าถึงถูกปฏิเสธ</h1>
+            <p class="text-gray-600">คุณไม่มีสิทธิ์ในการเข้าถึงแผงควบคุมนี้ กรุณาติดต่อผู้ดูแลระบบ</p>
+        </div>
+    </div>
     
     <script src="script.js"></script>
 </body>
 </html>
-
