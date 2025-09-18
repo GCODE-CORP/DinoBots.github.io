@@ -74,18 +74,11 @@ function initializeLiff() {
             if (liff.isLoggedIn()) {
                 liff.getProfile()
                     .then(profile => {
-                        // แสดง User ID บนหน้าจอ
-                        document.getElementById('liff-user-name').textContent = profile.displayName;
-                        document.getElementById('dashboard-content').classList.remove('hidden');
-
-                        // แสดง User ID ของคุณใน SweetAlert เพื่อให้คัดลอกได้ง่าย
-                        Swal.fire({
-                            title: 'User ID ของคุณ',
-                            text: `กรุณาคัดลอก User ID นี้ไปใช้เป็น Super Admin: ${profile.userId}`,
-                            icon: 'info'
-                        });
+                        currentUser = profile;
+                        checkAdminAccess(profile.userId);
                     })
                     .catch(err => {
+                        console.error("Error getting LIFF profile:", err);
                         Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถดึงข้อมูลโปรไฟล์ได้', 'error');
                     });
             } else {
@@ -93,6 +86,7 @@ function initializeLiff() {
             }
         })
         .catch((err) => {
+            console.error("LIFF initialization failed:", err);
             Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับ LINE ได้', 'error');
         });
 }
@@ -352,10 +346,7 @@ function botSettings() {
     document.getElementById('welcomeMessageInput').value = settingsData.welcome_message || '';
     document.getElementById('botStatusInput').value = settingsData.bot_status || 'online';
 }
-function manageAdmins() {
-    showSection('adminsSection');
-    fetchAndRenderAdmins();
-}
+function manageAdmins() { showSection('adminsSection'); fetchAndRenderAdmins(); }
 
 function addKeyword() {
     selectedKeyword = null;
@@ -440,10 +431,8 @@ async function addAdmin() {
     const newAdminUID = document.getElementById('newAdminUID').value.trim();
     if (!newAdminUID) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ User ID ของแอดมินใหม่', 'warning'); return; }
     
-    // ดึงข้อมูลชื่อผู้ใช้จาก LINE API
     try {
-        const profile = await liff.getProfile(newAdminUID);
-        const newAdminData = { user_id: newAdminUID, display_name: profile.displayName, status: 'active' };
+        const newAdminData = { user_id: newAdminUID, display_name: 'N/A', status: 'active' };
         const postResult = await postData('Admins', 'add', newAdminData);
 
         if (postResult) {
@@ -452,7 +441,7 @@ async function addAdmin() {
             fetchAndRenderAdmins();
         }
     } catch (e) {
-        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูล User ID นี้ได้', 'error');
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเพิ่มแอดมินได้', 'error');
     }
 }
 
