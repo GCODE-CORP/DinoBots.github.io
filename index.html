@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DinoBot Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/2.21.1/sdk.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50">
+    <div id="dashboard-content" class="hidden">
+        <header class="gradient-bg text-white shadow-lg">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <span class="text-green-600 text-xl font-bold">🤖</span>
+                        </div>
+                        <h1 class="text-2xl font-bold">DinoBot Admin</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-green-100">สวัสดี, <span id="liff-user-name"></span></span>
+                        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                            <span class="text-green-600">👤</span>
+                        </div>
+                        <button onclick="handleLogout()" class="text-sm font-medium text-white opacity-80 hover:opacity-100 transition-opacity">ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container mx-auto px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">ผู้ใช้ทั้งหมด</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalUsers">...</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span class="text-blue-600 text-xl">👥</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">ข้อความทั้งหมด</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalMessages">...</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="text-green-600 text-xl">💬</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">บอทออนไลน์</p>
+                            <p class="text-3xl font-bold text-green-600">✓ เชื่อมต่อ</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="text-green-600 text-xl">🟢</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">คีย์เวิร์ดทั้งหมด</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalKeywords">...</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <span class="text-purple-600 text-xl">🔑</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">การจัดการด่วน</h3>
+                        <div class="space-y-4">
+                            <button onclick="viewUsers()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                                <span>👥</span>
+                                <span>จัดการผู้ใช้</span>
+                            </button>
+                            <button onclick="manageKeywords()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                                <span>🔑</span>
+                                <span>จัดการคีย์เวิร์ด</span>
+                            </button>
+                            <button onclick="botSettings()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                                <span>⚙️</span>
+                                <span>ตั้งค่าบอท</span>
+                            </button>
+                            <button id="adminManagementBtn" onclick="manageAdmins()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 hidden">
+                                <span>👑</span>
+                                <span>จัดการแอดมิน</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">ข้อมูลล่าสุด</h3>
+                            <button onclick="refreshData()" class="text-green-600 hover:text-green-700 font-medium">🔄 รีเฟรช</button>
+                        </div>
+                        <div class="space-y-4">
+                             <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-800 mb-2">ข้อความต้อนรับ</h4>
+                                <p class="text-gray-600 mt-1" id="welcomeMessage">...</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-800 mb-2">สถานะบอท</h4>
+                                <p class="text-gray-600 mt-1" id="botStatus">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="adminsSection" style="display: none;">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">👑 จัดการแอดมิน</h3>
+                    <button onclick="hideSection('adminsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        ปิด
+                    </button>
+                </div>
+                <div class="flex items-center space-x-4 mb-6">
+                    <input type="text" id="newAdminUID" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ใส่ User ID ของแอดมินใหม่">
+                    <button onclick="addAdmin()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                        + เพิ่มแอดมิน
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อแอดมิน</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminsTableBody" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="usersSection" style="display: none;">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">👥 จัดการผู้ใช้</h3>
+                    <div class="flex space-x-3">
+                        <button onclick="exportUsers()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            📊 Export
+                        </button>
+                        <button onclick="hideSection('usersSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                            ปิด
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <input type="text" id="userSearch" placeholder="ค้นหาผู้ใช้..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" oninput="filterUsers()">
+                    </div>
+                    <div>
+                        <select id="userStatusFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="filterUsers()">
+                            <option value="">ทุกสถานะ</option>
+                            <option value="active">ใช้งานอยู่</option>
+                            <option value="inactive">ไม่ใช้งาน</option>
+                            <option value="blocked">ถูกบล็อก</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="userTypeFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="filterUsers()">
+                            <option value="">ทุกประเภท</option>
+                            <option value="new">ผู้ใช้ใหม่</option>
+                            <option value="regular">ผู้ใช้ทั่วไป</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ใช้</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เข้าร่วมเมื่อ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="keywordsSection" style="display: none;">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">จัดการคีย์เวิร์ด</h3>
+                    <div class="flex space-x-3">
+                        <button onclick="addKeyword()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            + เพิ่มคีย์เวิร์ด
+                        </button>
+                        <button onclick="hideSection('keywordsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                            ปิด
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-4">รายการคีย์เวิร์ด</h4>
+                        <div class="space-y-3" id="keywordsList">
+                            <p class="text-center text-gray-500">กำลังโหลด...</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-4" id="keywordFormTitle">เพิ่มคีย์เวิร์ด</h4>
+                        <form id="keywordForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">คีย์เวิร์ด</label>
+                                <input type="text" id="keywordInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="พิมพ์คีย์เวิร์ด...">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ประเภทการตอบกลับ</label>
+                                <select id="responseType" onchange="toggleResponseFields()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="text">Text Message</option>
+                                    <option value="url">URL</option>
+                                    <option value="flex_message">Flex Message</option>
+                                </select>
+                            </div>
+                            
+                            <div id="textResponse" class="response-field">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ข้อความตอบกลับ</label>
+                                <textarea id="textContent" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="4" placeholder="พิมพ์ข้อความที่ต้องการตอบกลับ..."></textarea>
+                            </div>
+                            
+                            <div id="urlResponse" class="response-field" style="display: none;">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">URL</label>
+                                <input type="url" id="urlContent" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://example.com">
+                            </div>
+                            
+                            <div id="flex_messageResponse" class="response-field" style="display: none;">
+                                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-4">
+                                    <h5 class="font-semibold text-gray-800 mb-2">📝 Flex Message JSON</h5>
+                                    <p class="text-sm text-gray-600">วาง JSON สำหรับ LINE API</p>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="block text-sm font-semibold text-gray-700">📝 Flex Message JSON</label>
+                                                <div class="flex space-x-2">
+                                                    <button type="button" onclick="formatJSON()" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
+                                                        ✨ จัดรูปแบบ
+                                                    </button>
+                                                    <button type="button" onclick="validateJSON()" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors">
+                                                        ✅ ตรวจสอบ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <textarea id="flex_messageContent" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono text-sm" rows="10" placeholder='วาง JSON ของคุณที่นี่...' oninput="updateJSONPreview()"></textarea>
+                                            <div id="jsonStatus" class="mt-2 text-sm"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">👀 ตัวอย่าง</label>
+                                        <div id="jsonFlexPreview" class="border-2 border-gray-200 rounded-xl p-4 bg-white shadow-sm max-w-sm mx-auto min-h-[300px]">
+                                            <div class="text-center text-gray-400 py-8">
+                                                <div class="text-4xl mb-2">📱</div>
+                                                <p>วาง JSON เพื่อดูตัวอย่าง</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-3 pt-4">
+                                <button type="button" onclick="saveKeyword()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                                    บันทึก
+                                </button>
+                                <button type="button" onclick="clearForm()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors">
+                                    ล้างฟอร์ม
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="settingsSection" style="display: none;">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">⚙️ ตั้งค่าบอท</h3>
+                    <button onclick="hideSection('settingsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        ปิด
+                    </button>
+                </div>
+                <form id="settingsForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ข้อความต้อนรับ</label>
+                        <textarea id="welcomeMessageInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="พิมพ์ข้อความต้อนรับ..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">สถานะบอท</label>
+                        <select id="botStatusInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="online">ออนไลน์</option>
+                            <option value="offline">ออฟไลน์</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="saveSettings()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                        💾 บันทึกการตั้งค่า
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="liff-loading" class="flex items-center justify-center min-h-screen bg-gray-100">
+        <div class="text-center p-8 bg-white rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">กำลังเชื่อมต่อกับ DinoBot...</h1>
+            <p class="text-gray-500">โปรดรอสักครู่</p>
+            <div class="mt-4 flex items-center justify-center">
+                <div class="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-green-500"></div>
+            </div>
+        </div>
+    </div>
+    <div id="access-denied" class="flex items-center justify-center min-h-screen bg-gray-100 hidden">
+        <div class="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
+            <div class="text-5xl mb-4">⛔️</div>
+            <h1 class="text-2xl font-bold text-red-600 mb-2">การเข้าถึงถูกปฏิเสธ</h1>
+            <p class="text-gray-600">คุณไม่มีสิทธิ์ในการเข้าถึงแผงควบคุมนี้ กรุณาติดต่อผู้ดูแลระบบ</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
