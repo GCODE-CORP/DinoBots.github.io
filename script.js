@@ -1,7 +1,7 @@
 // --- Configuration ---
 // **สำคัญ: แก้ไข URL และ LIFF ID ที่นี่**
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwPzuK1bxht_cvFPRwmzAbsJOLPiBk5r4TPS8s5W9S17wQYpAQgo4VlEpqMfstXmbk/exec';
-const myLiffId = "2008135136-JOd9oRNL";
+const myLiffId = "2008123612-GELz9yyn";
 // **สำคัญ: เปลี่ยนค่านี้เป็น User ID ของคุณ**
 const SUPER_ADMIN_UID = "Uf6c342f0263f3532f814b6c318991a03";
 
@@ -585,4 +585,5 @@ window.renderBubblePreview = renderBubblePreview;
 window.renderCarouselPreview = renderCarouselPreview;
 window.renderBoxContents = renderBoxContents;
 window.addAdmin = addAdmin;
+
 window.toggleAdminStatus = toggleAdminStatus;
