@@ -6,6 +6,8 @@
     <title>DinoBot Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/2.21.1/sdk.js"></script>
     <style>
         body { font-family: 'Kanit', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #00C851 0%, #00B74A 100%); }
@@ -13,8 +15,6 @@
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .flex-message-card { transform: scale(0.65); transform-origin: top left; width: 154%; margin-bottom: -60px; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://static.line-scdn.net/liff/2.21.1/sdk.js"></script>
 </head>
 <body class="bg-gray-50">
     <div id="dashboard-content" class="hidden">
@@ -28,7 +28,7 @@
                         <h1 class="text-2xl font-bold">DinoBot Admin</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <span class="text-green-100">สวัสดี, <span id="liff-user-name"></span></span>
+                        <span class="text-green-100">สวัสดี, <span id="liff-user-name">...</span></span>
                         <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                             <span class="text-green-600">👤</span>
                         </div>
@@ -348,22 +348,6 @@
                     ปิด
                 </button>
             </div>
-        </div>
-    </div>
-    <div id="liff-loading" class="flex items-center justify-center min-h-screen bg-gray-100 hidden">
-        <div class="text-center p-8 bg-white rounded-lg shadow-md">
-            <h1 class="text-3xl font-bold text-gray-800 mb-4">กำลังเชื่อมต่อกับ DinoBot...</h1>
-            <p class="text-gray-500">โปรดรอสักครู่</p>
-            <div class="mt-4 flex items-center justify-center">
-                <div class="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-green-500"></div>
-            </div>
-        </div>
-    </div>
-    <div id="access-denied" class="flex items-center justify-center min-h-screen bg-gray-100 hidden">
-        <div class="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-            <div class="text-5xl mb-4">⛔️</div>
-            <h1 class="text-2xl font-bold text-red-600 mb-2">การเข้าถึงถูกปฏิเสธ</h1>
-            <p class="text-gray-600">คุณไม่มีสิทธิ์ในการเข้าถึงแผงควบคุมนี้ กรุณาติดต่อผู้ดูแลระบบ</p>
         </div>
     </div>
     
