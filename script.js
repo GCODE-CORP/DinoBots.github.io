@@ -346,7 +346,10 @@ function botSettings() {
     document.getElementById('welcomeMessageInput').value = settingsData.welcome_message || '';
     document.getElementById('botStatusInput').value = settingsData.bot_status || 'online';
 }
-function manageAdmins() { showSection('adminsSection'); fetchAndRenderAdmins(); }
+function manageAdmins() {
+    showSection('adminsSection');
+    fetchAndRenderAdmins();
+}
 
 function addKeyword() {
     selectedKeyword = null;
@@ -430,14 +433,20 @@ async function deleteKeyword(keyword) {
 async function addAdmin() {
     const newAdminUID = document.getElementById('newAdminUID').value.trim();
     if (!newAdminUID) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ User ID ของแอดมินใหม่', 'warning'); return; }
+    
+    // ดึงข้อมูลชื่อผู้ใช้จาก LINE API
+    try {
+        const profile = await liff.getProfile(newAdminUID);
+        const newAdminData = { user_id: newAdminUID, display_name: profile.displayName, status: 'active' };
+        const postResult = await postData('Admins', 'add', newAdminData);
 
-    const newAdminData = { user_id: newAdminUID, display_name: 'N/A', status: 'active' };
-    const postResult = await postData('Admins', 'add', newAdminData);
-
-    if (postResult) {
-        Swal.fire('สำเร็จ!', postResult, 'success');
-        document.getElementById('newAdminUID').value = '';
-        fetchAndRenderAdmins();
+        if (postResult) {
+            Swal.fire('สำเร็จ!', postResult, 'success');
+            document.getElementById('newAdminUID').value = '';
+            fetchAndRenderAdmins();
+        }
+    } catch (e) {
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูล User ID นี้ได้', 'error');
     }
 }
 
@@ -654,4 +663,3 @@ window.renderBoxContents = renderBoxContents;
 window.addAdmin = addAdmin;
 window.toggleAdminStatus = toggleAdminStatus;
 window.deleteAdmin = deleteAdmin;
-
