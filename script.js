@@ -1,5 +1,4 @@
 // ตรวจสอบสถานะการล็อกอินก่อนเริ่มทำงาน
-// ถ้าไม่มีสถานะล็อกอินจะเปลี่ยนเส้นทางไปหน้า login.html ทันที
 const isLoggedIn = localStorage.getItem('isLoggedIn');
 if (isLoggedIn !== 'true') {
     window.location.href = 'login.html';
@@ -18,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleSheetsIdInput = document.getElementById('googleSheetsId');
 
     // Make sure to replace with your deployed Google Apps Script URL
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbyP9gVq5cC-IBh7SHxzDO-3uC9NK2VW22unixbdKYYjjoqoqh4xFsbRjlmd8xRCh8r_7w/exec';
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxUPW-E-DoF4hfyInt7Px36vf2TDTFd6c-cWNCgPmLJbrud5wWdS73Sl2w719flzNbJMA/exec';
     
     // --- LocalStorage System ---
     function saveSheetIdToLocalStorage() {
@@ -73,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchDataFromSheets() {
         const sheetsId = googleSheetsIdInput.value.trim();
         if (!sheetsId) {
-            return; // Exit if no Sheet ID is provided
+            return;
         }
         
         showNotification('กำลังดึงข้อมูลจาก Google Sheets...', true);
@@ -87,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTable(data.data);
                 showNotification('ดึงข้อมูลสำเร็จ!', true);
             } else {
-                renderTable([]); // Clear table on error
+                renderTable([]);
                 showNotification(`เกิดข้อผิดพลาด: ${data.message}`, false);
             }
         } catch (error) {
@@ -154,10 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             fetch(webAppUrl, {
                 method: 'POST',
-                body: JSON.stringify(payload),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                body: JSON.stringify(payload)
             })
             .then(response => response.json())
             .then(data => {
@@ -200,10 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 fetch(webAppUrl, {
                     method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    body: JSON.stringify(payload)
                 })
                 .then(response => response.json())
                 .then(data => {
