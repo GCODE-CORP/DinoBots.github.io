@@ -3,1004 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DinoBot Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kanit', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #00C851 0%, #00B74A 100%); }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .flex-message-card { transform: scale(0.65); transform-origin: top left; width: 154%; margin-bottom: -60px; }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://static.line-scdn.net/liff/2.21.1/sdk.js"></script>
+    <title>DinoBot Developer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50">
-    <div id="dashboard-content" class="hidden">
-        <header class="gradient-bg text-white shadow-lg">
-            <div class="container mx-auto px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                            <span class="text-green-600 text-xl font-bold">🤖</span>
-                        </div>
-                        <h1 class="text-2xl font-bold">DinoBot Admin</h1>
+<body class="bg-gray-100 font-sarabun text-gray-800">
+
+    <header class="bg-green-600 text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <h1 class="text-3xl font-bold flex items-center">
+                <i class="fas fa-robot mr-2"></i>
+                DinoBot Developer
+            </h1>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6">
+                    <li><a href="#setup" class="hover:text-green-200 transition duration-300">ตั้งค่าบอท</a></li>
+                    <li><a href="#keywords" class="hover:text-green-200 transition duration-300">จัดการคีย์เวิร์ด</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+
+        <section id="setup" class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-cogs mr-2"></i>
+                ตั้งค่า DinoBot
+            </h2>
+            <p class="text-gray-600 mb-4">เชื่อมต่อ DinoBot ของคุณกับ LINE OA และ Google Sheets</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2 flex items-center">
+                        <i class="fab fa-line text-green-500 mr-2"></i>
+                        ตั้งค่า LINE Bot
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-4">ใส่ Channel Access Token และ Channel Secret ของ LINE OA ของคุณ</p>
+                    <div class="mb-4">
+                        <label for="channelAccessToken" class="block text-sm font-medium text-gray-700">Channel Access Token</label>
+                        <input type="text" id="channelAccessToken" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="ใส่ Channel Access Token">
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-green-100">สวัสดี, <span id="liff-user-name"></span></span>
-                        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                            <span class="text-green-600">👤</span>
-                        </div>
-                        <button onclick="handleLogout()" class="text-sm font-medium text-white opacity-80 hover:opacity-100 transition-opacity">ออกจากระบบ</button>
+                    <div class="mb-4">
+                        <label for="channelSecret" class="block text-sm font-medium text-gray-700">Channel Secret</label>
+                        <input type="text" id="channelSecret" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="ใส่ Channel Secret">
                     </div>
+                </div>
+                
+                <div id="statusMessage" class="hidden mt-4 p-3 rounded-md transition-all duration-300">
+    <div class="flex items-center">
+        <i id="statusIcon" class="mr-2 text-2xl"></i>
+        <span id="statusText" class="text-sm font-medium"></span>
+    </div>
+</div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-2 flex items-center">
+                        <i class="fab fa-google-sheets text-green-500 mr-2"></i>
+                        ตั้งค่า Google Sheets
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-4">ใส่ Google Sheets ID ของตารางที่คุณต้องการให้บอทใช้งาน</p>
+                    <div class="mb-4">
+                        <label for="googleSheetsId" class="block text-sm font-medium text-gray-700">Google Sheets ID</label>
+                        <input type="text" id="googleSheetsId" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="ใส่ Google Sheets ID">
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        <a href="#" class="text-green-600 hover:underline">วิธีการหา Google Sheets ID</a>
+                    </p>
                 </div>
             </div>
-        </header>
+        </section>
 
-        <div class="container mx-auto px-6 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">ผู้ใช้ทั้งหมด</p>
-                            <p class="text-3xl font-bold text-gray-800" id="totalUsers">...</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <span class="text-blue-600 text-xl">👥</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">ข้อความทั้งหมด</p>
-                            <p class="text-3xl font-bold text-gray-800" id="totalMessages">...</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="text-green-600 text-xl">💬</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">บอทออนไลน์</p>
-                            <p class="text-3xl font-bold text-green-600">✓ เชื่อมต่อ</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="text-green-600 text-xl">🟢</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">คีย์เวิร์ดทั้งหมด</p>
-                            <p class="text-3xl font-bold text-gray-800" id="totalKeywords">...</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <span class="text-purple-600 text-xl">🔑</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <section id="keywords" class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-list-alt mr-2"></i>
+                จัดการคีย์เวิร์ด
+            </h2>
+            <p class="text-gray-600 mb-4">เพิ่ม แก้ไข และลบคีย์เวิร์ดพร้อมคำตอบสำหรับ DinoBot</p>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-6">การจัดการด่วน</h3>
-                        <div class="space-y-4">
-                            <button onclick="viewUsers()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
-                                <span>👥</span>
-                                <span>จัดการผู้ใช้</span>
-                            </button>
-                            <button onclick="manageKeywords()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
-                                <span>🔑</span>
-                                <span>จัดการคีย์เวิร์ด</span>
-                            </button>
-                            <button onclick="botSettings()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
-                                <span>⚙️</span>
-                                <span>ตั้งค่าบอท</span>
-                            </button>
-                            <button id="adminManagementBtn" onclick="manageAdmins()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 hidden">
-                                <span>👑</span>
-                                <span>จัดการแอดมิน</span>
-                            </button>
-                        </div>
+            <div class="border-b border-gray-200 pb-6 mb-6">
+                <h3 class="text-xl font-semibold mb-2 flex items-center">
+                    <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                    เพิ่มคีย์เวิร์ดใหม่
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="keywordInput" class="block text-sm font-medium text-gray-700">คีย์เวิร์ด <span class="text-red-500">*</span></label>
+                        <input type="text" id="keywordInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="เช่น 'สวัสดี'">
+                    </div>
+                    <div>
+                        <label for="responseType" class="block text-sm font-medium text-gray-700">ประเภทคำตอบ <span class="text-red-500">*</span></label>
+                        <select id="responseType" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            <option value="text">ข้อความธรรมดา</option>
+                            <option value="image">รูปภาพ</option>
+                            <option value="flex">Flex Message</option>
+                        </select>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xl font-semibold text-gray-800">ข้อมูลล่าสุด</h3>
-                            <button onclick="refreshData()" class="text-green-600 hover:text-green-700 font-medium">🔄 รีเฟรช</button>
-                        </div>
-                        <div class="space-y-4">
-                             <div class="p-4 bg-gray-50 rounded-lg">
-                                <h4 class="font-medium text-gray-800 mb-2">ข้อความต้อนรับ</h4>
-                                <p class="text-gray-600 mt-1" id="welcomeMessage">...</p>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h4 class="font-medium text-gray-800 mb-2">สถานะบอท</h4>
-                                <p class="text-gray-600 mt-1" id="botStatus">...</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mt-4">
+                    <label for="responseContent" class="block text-sm font-medium text-gray-700">เนื้อหาคำตอบ <span class="text-red-500">*</span></label>
+                    <textarea id="responseContent" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="ใส่ข้อความ, URL รูปภาพ หรือ JSON ของ Flex Message"></textarea>
                 </div>
-            </div>
-
-            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="adminsSection" style="display: none;">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">👑 จัดการแอดมิน</h3>
-                    <button onclick="hideSection('adminsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                        ปิด
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button id="addKeywordBtn" class="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300">
+                        <i class="fas fa-plus mr-1"></i>
+                        เพิ่ม
+                    </button>
+                    <button id="saveToSheetsBtn" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
+                        <i class="fab fa-google-sheets mr-1"></i>
+                        บันทึกข้อมูลลง Google Sheets
                     </button>
                 </div>
-                <div class="flex items-center space-x-4 mb-6">
-                    <input type="text" id="newAdminUID" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ใส่ User ID ของแอดมินใหม่">
-                    <button onclick="addAdmin()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
-                        + เพิ่มแอดมิน
-                    </button>
-                </div>
+            </div>
+            
+            <div id="status-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2"></div>
+
+            <div>
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-table mr-2"></i>
+                    รายการคีย์เวิร์ด
+                </h3>
                 <div class="overflow-x-auto">
-                    <table class="w-full table-auto">
+                    <table class="min-w-full divide-y divide-gray-200 shadow-sm rounded-lg">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อแอดมิน</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คีย์เวิร์ด</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เนื้อหา</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
                             </tr>
                         </thead>
-                        <tbody id="adminsTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="keywordTableBody" class="bg-white divide-y divide-gray-200">
                             </tbody>
                     </table>
                 </div>
             </div>
-            
-            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="usersSection" style="display: none;">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">👥 จัดการผู้ใช้</h3>
-                    <div class="flex space-x-3">
-                        <button onclick="exportUsers()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                            📊 Export
-                        </button>
-                        <button onclick="hideSection('usersSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                            ปิด
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <input type="text" id="userSearch" placeholder="ค้นหาผู้ใช้..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" oninput="filterUsers()">
-                    </div>
-                    <div>
-                        <select id="userStatusFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="filterUsers()">
-                            <option value="">ทุกสถานะ</option>
-                            <option value="active">ใช้งานอยู่</option>
-                            <option value="inactive">ไม่ใช้งาน</option>
-                            <option value="blocked">ถูกบล็อก</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="userTypeFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="filterUsers()">
-                            <option value="">ทุกประเภท</option>
-                            <option value="new">ผู้ใช้ใหม่</option>
-                            <option value="regular">ผู้ใช้ทั่วไป</option>
-                            <option value="vip">VIP</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full table-auto">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ใช้</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เข้าร่วมเมื่อ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
+        </section>
+    </main>
 
-            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="keywordsSection" style="display: none;">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">จัดการคีย์เวิร์ด</h3>
-                    <div class="flex space-x-3">
-                        <button onclick="addKeyword()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                            + เพิ่มคีย์เวิร์ด
-                        </button>
-                        <button onclick="hideSection('keywordsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                            ปิด
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-4">รายการคีย์เวิร์ด</h4>
-                        <div class="space-y-3" id="keywordsList">
-                            <p class="text-center text-gray-500">กำลังโหลด...</p>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-4" id="keywordFormTitle">เพิ่มคีย์เวิร์ด</h4>
-                        <form id="keywordForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">คีย์เวิร์ด</label>
-                                <input type="text" id="keywordInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="พิมพ์คีย์เวิร์ด...">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">ประเภทการตอบกลับ</label>
-                                <select id="responseType" onchange="toggleResponseFields()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="text">Text Message</option>
-                                    <option value="url">URL</option>
-                                    <option value="flex_message">Flex Message</option>
-                                </select>
-                            </div>
-                            
-                            <div id="textResponse" class="response-field">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">ข้อความตอบกลับ</label>
-                                <textarea id="textContent" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="4" placeholder="พิมพ์ข้อความที่ต้องการตอบกลับ..."></textarea>
-                            </div>
-                            
-                            <div id="urlResponse" class="response-field" style="display: none;">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">URL</label>
-                                <input type="url" id="urlContent" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://example.com">
-                            </div>
-                            
-                            <div id="flex_messageResponse" class="response-field" style="display: none;">
-                                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-4">
-                                    <h5 class="font-semibold text-gray-800 mb-2">📝 Flex Message JSON</h5>
-                                    <p class="text-sm text-gray-600">วาง JSON สำหรับ LINE API</p>
-                                </div>
-                                <div class="grid grid-cols-1 gap-4">
-                                    <div class="space-y-4">
-                                        <div>
-                                            <div class="flex items-center justify-between mb-2">
-                                                <label class="block text-sm font-semibold text-gray-700">📝 Flex Message JSON</label>
-                                                <div class="flex space-x-2">
-                                                    <button type="button" onclick="formatJSON()" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
-                                                        ✨ จัดรูปแบบ
-                                                    </button>
-                                                    <button type="button" onclick="validateJSON()" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors">
-                                                        ✅ ตรวจสอบ
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <textarea id="flex_messageContent" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono text-sm" rows="10" placeholder='วาง JSON ของคุณที่นี่...' oninput="updateJSONPreview()"></textarea>
-                                            <div id="jsonStatus" class="mt-2 text-sm"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">👀 ตัวอย่าง</label>
-                                        <div id="jsonFlexPreview" class="border-2 border-gray-200 rounded-xl p-4 bg-white shadow-sm max-w-sm mx-auto min-h-[300px]">
-                                            <div class="text-center text-gray-400 py-8">
-                                                <div class="text-4xl mb-2">📱</div>
-                                                <p>วาง JSON เพื่อดูตัวอย่าง</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex space-x-3 pt-4">
-                                <button type="button" onclick="saveKeyword()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
-                                    บันทึก
-                                </button>
-                                <button type="button" onclick="clearForm()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors">
-                                    ล้างฟอร์ม
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    <footer class="bg-gray-200 text-center py-4 text-sm text-gray-600">
+        <p>&copy; 2025 DinoBot Developer. All Rights Reserved.</p>
+    </footer>
 
-            <div class="mt-8 bg-white rounded-xl shadow-md p-6" id="settingsSection" style="display: none;">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">⚙️ ตั้งค่าบอท</h3>
-                    <button onclick="hideSection('settingsSection')" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                        ปิด
-                    </button>
-                </div>
-                <form id="settingsForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ข้อความต้อนรับ</label>
-                        <textarea id="welcomeMessageInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="พิมพ์ข้อความต้อนรับ..."></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">สถานะบอท</label>
-                        <select id="botStatusInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="online">ออนไลน์</option>
-                            <option value="offline">ออฟไลน์</option>
-                        </select>
-                    </div>
-                    <button type="button" onclick="saveSettings()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
-                        💾 บันทึกการตั้งค่า
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div id="userProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-8 max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">👤 ข้อมูลผู้ใช้</h3>
-                <button onclick="closeUserProfileModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
-            </div>
-            
-            <div id="userProfileContent" class="space-y-4">
-                </div>
-            
-            <div class="flex justify-end mt-6 space-x-3">
-                <button onclick="closeUserProfileModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors">
-                    ปิด
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // --- Configuration ---
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwPzuK1bxht_cvFPRwmzAbsJOLPiBk5r4TPS8s5W9S17wQYpAQgo4VlEpqMfstXmbk/exec';
-        const SUPER_ADMIN_UID = "Uf6c342f0263f3532f814b6c318991a03"; // **สำคัญ: เปลี่ยนค่านี้เป็น User ID ของคุณ**
-        
-        // --- Global Data Storage ---
-        let usersData = [];
-        let keywordsData = [];
-        let settingsData = {};
-        let adminsData = [];
-        let filteredUsers = [];
-        let selectedKeyword = null;
-        let currentUser = {
-            userId: SUPER_ADMIN_UID, // จำลองว่าเป็น Super Admin
-            displayName: 'แอดมิน'
-        };
-
-        // --- Core Functions for API Communication ---
-        async function fetchData(sheetName) {
-            try {
-                const response = await fetch(`${WEB_APP_URL}?sheet=${sheetName}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error);
-                }
-                return result.data;
-            } catch (error) {
-                console.error(`Error fetching data from ${sheetName}:`, error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด!',
-                    text: `ไม่สามารถโหลดข้อมูลจากชีต ${sheetName} ได้: ${error.message}`,
-                    confirmButtonText: 'ตกลง'
-                });
-                return null;
-            }
-        }
-
-        async function postData(sheetName, action, data) {
-            try {
-                const response = await fetch(`${WEB_APP_URL}?sheet=${sheetName}&action=${action}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error);
-                }
-                return result.result;
-            } catch (error) {
-                console.error(`Error posting data to ${sheetName} with action ${action}:`, error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'บันทึกข้อมูลไม่สำเร็จ!',
-                    text: `เกิดข้อผิดพลาด: ${error.message}`,
-                    confirmButtonText: 'ตกลง'
-                });
-                return null;
-            }
-        }
-
-        // --- Initialization and Data Fetching ---
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAdminAccess(SUPER_ADMIN_UID);
-        });
-
-        async function checkAdminAccess(uid) {
-            // โหมดทดสอบ: เราจะไม่ดึงข้อมูลจาก LIFF เพื่อความรวดเร็ว
-            // แต่จะใช้ UID ที่กำหนดเอง
-            const isAdmin = (uid === SUPER_ADMIN_UID);
-
-            if (isAdmin) {
-                document.getElementById('dashboard-content').classList.remove('hidden');
-                document.getElementById('liff-user-name').textContent = currentUser.displayName;
-                if (uid === SUPER_ADMIN_UID) {
-                    document.getElementById('adminManagementBtn').classList.remove('hidden');
-                }
-                initDashboard();
-            } else {
-                 Swal.fire({
-                    icon: 'error',
-                    title: 'การเข้าถึงถูกปฏิเสธ',
-                    text: 'คุณไม่มีสิทธิ์ในการเข้าถึงแผงควบคุมนี้ กรุณาติดต่อผู้ดูแลระบบ',
-                    confirmButtonText: 'ตกลง'
-                });
-            }
-        }
-
-        async function initDashboard() {
-            console.log('Fetching all data...');
-            document.getElementById('totalUsers').textContent = '...';
-            document.getElementById('totalKeywords').textContent = '...';
-            document.getElementById('welcomeMessage').textContent = '...';
-            document.getElementById('botStatus').textContent = '...';
-
-            await Promise.all([
-                fetchAndRenderUsers(),
-                fetchAndRenderKeywords(),
-                fetchAndRenderSettings()
-            ]);
-            console.log('All data loaded.');
-        }
-
-        async function refreshData() {
-            console.log('Refreshing all data...');
-            await Promise.all([
-                fetchAndRenderUsers(),
-                fetchAndRenderKeywords(),
-                fetchAndRenderSettings(),
-                fetchAndRenderAdmins()
-            ]);
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: 'รีเฟรชข้อมูลเรียบร้อยแล้ว',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-
-        async function fetchAndRenderUsers() {
-            usersData = await fetchData('Users');
-            if (usersData) {
-                filteredUsers = usersData;
-                renderUsersTable();
-                updateStats();
-            }
-        }
-
-        async function fetchAndRenderKeywords() {
-            keywordsData = await fetchData('Keywords');
-            if (keywordsData) {
-                renderKeywordsList();
-                updateStats();
-            }
-        }
-
-        async function fetchAndRenderSettings() {
-            const settingsArray = await fetchData('Settings');
-            if (settingsArray) {
-                settingsData = settingsArray.reduce((acc, item) => {
-                    acc[item.setting_name] = item.setting_value;
-                    return acc;
-                }, {});
-                document.getElementById('welcomeMessage').textContent = settingsData.welcome_message || 'ยังไม่มีข้อความต้อนรับ';
-                document.getElementById('botStatus').textContent = settingsData.bot_status === 'online' ? 'ออนไลน์' : 'ออฟไลน์';
-                updateStats();
-            }
-        }
-
-        async function fetchAndRenderAdmins() {
-            adminsData = await fetchData('Admins');
-            if (adminsData) {
-                renderAdminsTable();
-            }
-        }
-
-        function updateStats() {
-            document.getElementById('totalUsers').textContent = usersData ? usersData.length.toLocaleString() : '0';
-            document.getElementById('totalKeywords').textContent = keywordsData ? keywordsData.length.toLocaleString() : '0';
-            document.getElementById('totalMessages').textContent = 'N/A';
-        }
-
-        // --- UI Rendering Functions ---
-        function renderUsersTable() {
-            const tbody = document.getElementById('usersTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (filteredUsers && filteredUsers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">ไม่พบข้อมูลผู้ใช้</td></tr>';
-                return;
-            }
-            filteredUsers.forEach(user => {
-                const statusBadge = getStatusBadge(user.status);
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50';
-                row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center"><div class="ml-4"><div class="text-sm font-medium text-gray-900">${user.display_name}</div><div class="text-sm text-gray-500">ID: ${user.user_id}</div></div></div></td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDateTime(user.join_date)}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2"><button onclick="viewUserProfile('${user.user_id}')" class="text-blue-600 hover:text-blue-900">ดูข้อมูล</button></div></td>`;
-                tbody.appendChild(row);
-            });
-        }
-        
-        function renderKeywordsList() {
-            const keywordsList = document.getElementById('keywordsList');
-            if (!keywordsList) return;
-            keywordsList.innerHTML = '';
-            if (keywordsData && keywordsData.length === 0) {
-                keywordsList.innerHTML = '<p class="text-center text-gray-500 py-4">ยังไม่มีคีย์เวิร์ด</p>';
-                return;
-            }
-            keywordsData.forEach(keywordData => {
-                const keywordElement = document.createElement('div');
-                keywordElement.className = 'p-4 border border-gray-200 rounded-lg';
-                let preview = '';
-                if (keywordData.response_type === 'text') {
-                    preview = keywordData.response_content;
-                } else if (keywordData.response_type === 'url') {
-                    preview = `<a href="${keywordData.response_content}" class="text-blue-500 hover:underline" target="_blank">${keywordData.response_content}</a>`;
-                } else if (keywordData.response_type === 'flex_message') {
-                    try {
-                        const flexData = JSON.parse(keywordData.response_content);
-                        const tempContainer = document.createElement('div');
-                        tempContainer.className = 'flex-message-card';
-                        renderFlexPreview(flexData, tempContainer);
-                        preview = tempContainer.outerHTML;
-                    } catch (e) {
-                        preview = '❌ JSON ไม่ถูกต้อง';
-                    }
-                }
-                keywordElement.innerHTML = `<div class="flex items-center justify-between mb-2"><span class="font-medium text-gray-800">${keywordData.keyword}</span><div class="flex space-x-2"><button onclick="editKeyword('${keywordData.keyword}')" class="text-blue-600 hover:text-blue-700 text-sm">แก้ไข</button><button onclick="deleteKeyword('${keywordData.keyword}')" class="text-red-600 hover:text-red-700 text-sm">ลบ</button></div></div><p class="text-sm text-gray-600">ประเภท: ${keywordData.response_type === 'text' ? 'Text' : keywordData.response_type === 'url' ? 'URL' : 'Flex Message'}</p><div class="text-sm text-gray-500 mt-1">${preview}</div>`;
-                keywordsList.appendChild(keywordElement);
-            });
-        }
-
-        function renderAdminsTable() {
-            const tbody = document.getElementById('adminsTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (adminsData && adminsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">ไม่พบข้อมูลแอดมิน</td></tr>';
-                return;
-            }
-            adminsData.forEach(admin => {
-                const isSuperAdmin = admin.user_id === SUPER_ADMIN_UID;
-                const statusBadge = isSuperAdmin ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Super Admin</span>' : getStatusBadge(admin.status);
-                const actionButtons = isSuperAdmin 
-                    ? '<span>-</span>' 
-                    : `<button onclick="toggleAdminStatus('${admin.user_id}', '${admin.status}')" class="text-yellow-600 hover:text-yellow-900">${admin.status === 'active' ? 'ปิด' : 'เปิด'}</button><button onclick="deleteAdmin('${admin.user_id}')" class="text-red-600 hover:text-red-900 ml-2">ลบ</button>`;
-                
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50';
-                row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${admin.display_name || 'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${admin.user_id}</td><td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td><td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><div class="flex space-x-2">${actionButtons}</div></td>`;
-                tbody.appendChild(row);
-            });
-        }
-
-        function renderFlexPreview(flexData, container) {
-            container.innerHTML = '';
-            let html = '';
-            if (flexData.type === 'bubble') {
-                html = renderBubblePreview(flexData);
-            } else if (flexData.type === 'carousel') {
-                html = renderCarouselPreview(flexData);
-            } else {
-                html = `<div class="text-center text-gray-400 py-8"><div class="text-4xl mb-2">📱</div><p>ประเภท: ${flexData.type}</p><p class="text-xs mt-1">ตัวอย่างไม่รองรับ</p></div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        function renderBubblePreview(bubble) {
-            let html = '<div class="border rounded-lg overflow-hidden shadow-sm">';
-            if (bubble.hero && bubble.hero.type === 'image') {
-                html += `<div class="w-full h-32 bg-gray-200 rounded-t-lg overflow-hidden"><img src="${bubble.hero.url}" alt="Hero" class="w-full h-full object-cover"></div>`;
-            }
-            if (bubble.body) {
-                html += '<div class="p-4">';
-                html += renderBoxContents(bubble.body.contents);
-                html += '</div>';
-            }
-            if (bubble.footer) {
-                html += '<div class="p-4 pt-0">';
-                html += renderBoxContents(bubble.footer.contents);
-                html += '</div>';
-            }
-            html += '</div>';
-            return html;
-        }
-
-        function renderCarouselPreview(carousel) {
-            if (!carousel.contents || carousel.contents.length === 0) return `<div class="text-center text-gray-400 py-8"><p>Carousel ว่าง</p></div>`;
-            let html = '<div class="flex space-x-2 overflow-x-auto pb-2">';
-            carousel.contents.slice(0, 3).forEach(bubble => {
-                html += `<div class="flex-shrink-0 w-48">${renderBubblePreview(bubble)}</div>`;
-            });
-            if (carousel.contents.length > 3) html += '<div class="flex-shrink-0 w-12 flex items-center justify-center text-gray-400">...</div>';
-            html += '</div>';
-            return html;
-        }
-
-        function renderBoxContents(contents) {
-            if (!contents) return '';
-            let html = '';
-            contents.forEach(content => {
-                if (content.type === 'text') {
-                    const size = content.size === 'xl' ? 'text-lg' : content.size === 'lg' ? 'text-base' : 'text-sm';
-                    const weight = content.weight === 'bold' ? 'font-bold' : 'font-normal';
-                    const color = content.color || '#333333';
-                    html += `<p class="${size} ${weight} mb-2" style="color: ${color}">${content.text}</p>`;
-                } else if (content.type === 'button') {
-                    const buttonColor = content.color || '#00B900';
-                    html += `<button class="w-full py-2 px-4 rounded-lg text-white font-medium text-sm mb-2" style="background-color: ${buttonColor}">${content.action?.label || 'Button'}</button>`;
-                } else if (content.type === 'separator') {
-                    html += '<hr class="my-2 border-gray-200">';
-                } else if (content.type === 'spacer') {
-                    html += '<div class="my-2"></div>';
-                }
-            });
-            return html;
-        }
-
-        // --- Event Handlers and UI Logic ---
-        function getStatusBadge(status) {
-            const badges = { active: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">ใช้งานอยู่</span>', inactive: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">ไม่ใช้งาน</span>', blocked: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">ถูกบล็อก</span>' };
-            return badges[status] || '<span>-</span>';
-        }
-
-        function hideSection(id) { document.getElementById(id).style.display = 'none'; }
-        function showSection(id) {
-            const sections = ['usersSection', 'keywordsSection', 'settingsSection', 'adminsSection'];
-            sections.forEach(secId => document.getElementById(secId).style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-        }
-
-        function viewUsers() { showSection('usersSection'); }
-        function manageKeywords() { showSection('keywordsSection'); }
-        function botSettings() {
-            showSection('settingsSection');
-            document.getElementById('welcomeMessageInput').value = settingsData.welcome_message || '';
-            document.getElementById('botStatusInput').value = settingsData.bot_status || 'online';
-        }
-        function manageAdmins() {
-            showSection('adminsSection');
-            fetchAndRenderAdmins();
-        }
-        
-        function addKeyword() {
-            selectedKeyword = null;
-            document.getElementById('keywordFormTitle').textContent = 'เพิ่มคีย์เวิร์ด';
-            clearForm();
-        }
-
-        async function saveKeyword() {
-            const keyword = document.getElementById('keywordInput').value.trim();
-            const response_type = document.getElementById('responseType').value;
-            let response_content;
-
-            if (!keyword) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่คีย์เวิร์ด', 'warning'); return; }
-
-            if (response_type === 'text') {
-                response_content = document.getElementById('textContent').value.trim();
-                if (!response_content) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ข้อความตอบกลับ', 'warning'); return; }
-            } else if (response_type === 'url') {
-                response_content = document.getElementById('urlContent').value.trim();
-                if (!response_content) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ URL', 'warning'); return; }
-            } else if (response_type === 'flex_message') {
-                response_content = document.getElementById('flex_messageContent').value.trim();
-                try { JSON.parse(response_content); } catch (e) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'JSON ที่ใส่มาไม่ถูกต้อง', 'warning'); return; }
-                if (!response_content) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ JSON', 'warning'); return; }
-            }
-
-            const keywordData = { keyword, response_type, response_content };
-            let result;
-
-            if (selectedKeyword) {
-                const originalKeyword = selectedKeyword.keyword;
-                result = await postData('Keywords', 'update', { ...keywordData, originalKeyword });
-            } else {
-                result = await postData('Keywords', 'add', keywordData);
-            }
-
-            if (result) {
-                Swal.fire('สำเร็จ!', result, 'success');
-                clearForm();
-                fetchAndRenderKeywords();
-            }
-        }
-
-        function editKeyword(keyword) {
-            const keywordData = keywordsData.find(k => k.keyword === keyword);
-            if (!keywordData) return;
-            selectedKeyword = keywordData;
-            document.getElementById('keywordFormTitle').textContent = 'แก้ไขคีย์เวิร์ด';
-            document.getElementById('keywordInput').value = keywordData.keyword;
-            document.getElementById('responseType').value = keywordData.response_type;
-            toggleResponseFields();
-            if (keywordData.response_type === 'text') {
-                document.getElementById('textContent').value = keywordData.response_content;
-            } else if (keywordData.response_type === 'url') {
-                document.getElementById('urlContent').value = keywordData.response_content;
-            } else if (keywordData.response_type === 'flex_message') {
-                document.getElementById('flex_messageContent').value = keywordData.response_content;
-                updateJSONPreview();
-            }
-        }
-
-        async function deleteKeyword(keyword) {
-            Swal.fire({
-                title: 'ยืนยันการลบ?',
-                text: `คุณต้องการลบคีย์เวิร์ด "${keyword}" หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'ใช่, ลบเลย',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    const postResult = await postData('Keywords', 'delete', { keyword });
-                    if (postResult) {
-                        Swal.fire('ลบสำเร็จ!', postResult, 'success');
-                        fetchAndRenderKeywords();
-                    }
-                }
-            });
-        }
-
-        async function addAdmin() {
-            const newAdminUID = document.getElementById('newAdminUID').value.trim();
-            if (!newAdminUID) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาใส่ User ID ของแอดมินใหม่', 'warning'); return; }
-
-            const newAdminData = { user_id: newAdminUID, display_name: 'N/A', status: 'active' };
-            const postResult = await postData('Admins', 'add', newAdminData);
-
-            if (postResult) {
-                Swal.fire('สำเร็จ!', postResult, 'success');
-                document.getElementById('newAdminUID').value = '';
-                fetchAndRenderAdmins();
-            }
-        }
-
-        async function toggleAdminStatus(uid, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            const postResult = await postData('Admins', 'update', { user_id: uid, status: newStatus });
-            
-            if (postResult) {
-                Swal.fire('สำเร็จ!', postResult, 'success');
-                fetchAndRenderAdmins();
-            }
-        }
-
-        async function deleteAdmin(uid) {
-            Swal.fire({
-                title: 'ยืนยันการลบแอดมิน?',
-                text: `คุณต้องการลบแอดมิน User ID "${uid}" หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'ใช่, ลบเลย',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    const postResult = await postData('Admins', 'delete', { user_id: uid });
-                    if (postResult) {
-                        Swal.fire('ลบสำเร็จ!', postResult, 'success');
-                        fetchAndRenderAdmins();
-                    }
-                }
-            });
-        }
-
-        async function saveSettings() {
-            const welcomeMessage = document.getElementById('welcomeMessageInput').value.trim();
-            const botStatus = document.getElementById('botStatusInput').value;
-
-            const welcomeResult = await postData('Settings', 'update', {
-                setting_name: 'welcome_message',
-                setting_value: welcomeMessage
-            });
-
-            const statusResult = await postData('Settings', 'update', {
-                setting_name: 'bot_status',
-                setting_value: botStatus
-            });
-
-            if (welcomeResult && statusResult) {
-                Swal.fire('สำเร็จ!', 'บันทึกการตั้งค่าเรียบร้อยแล้ว', 'success');
-                fetchAndRenderSettings();
-            }
-        }
-
-        function clearForm() {
-            document.getElementById('keywordForm').reset();
-            selectedKeyword = null;
-            document.getElementById('keywordFormTitle').textContent = 'เพิ่มคีย์เวิร์ด';
-            toggleResponseFields();
-        }
-
-        function toggleResponseFields() {
-            const responseType = document.getElementById('responseType').value;
-            const textResponse = document.getElementById('textResponse');
-            const urlResponse = document.getElementById('urlResponse');
-            const flexResponse = document.getElementById('flex_messageResponse');
-            if (textResponse) textResponse.style.display = 'none';
-            if (urlResponse) urlResponse.style.display = 'none';
-            if (flexResponse) flexResponse.style.display = 'none';
-            const selectedResponseElement = document.getElementById(`${responseType}Response`);
-            if (selectedResponseElement) {
-                selectedResponseElement.style.display = 'block';
-            }
-        }
-
-        function formatJSON() {
-            const textarea = document.getElementById('flex_messageContent');
-            try {
-                const parsed = JSON.parse(textarea.value);
-                textarea.value = JSON.stringify(parsed, null, 2);
-                showJSONStatus('✨ จัดรูปแบบเรียบร้อย', 'text-green-600');
-            } catch (error) {
-                showJSONStatus('❌ JSON ไม่ถูกต้อง: ' + error.message, 'text-red-600');
-            }
-        }
-
-        function validateJSON() {
-            const textarea = document.getElementById('flex_messageContent');
-            try {
-                JSON.parse(textarea.value);
-                showJSONStatus('✅ JSON ถูกต้อง', 'text-green-600');
-            } catch (error) {
-                showJSONStatus('❌ JSON ไม่ถูกต้อง: ' + error.message, 'text-red-600');
-            }
-        }
-
-        function showJSONStatus(message, className) {
-            const status = document.getElementById('jsonStatus');
-            status.textContent = message;
-            status.className = 'mt-2 text-sm ' + className;
-            setTimeout(() => { status.textContent = '', status.className = 'mt-2 text-sm'; }, 3000);
-        }
-
-        function updateJSONPreview() {
-            const textarea = document.getElementById('flex_messageContent');
-            const preview = document.getElementById('jsonFlexPreview');
-            try {
-                const flexData = JSON.parse(textarea.value);
-                renderFlexPreview(flexData, preview);
-            } catch (error) {
-                preview.innerHTML = `<div class="text-center text-red-400 py-8"><div class="text-4xl mb-2">❌</div><p class="text-sm">JSON ไม่ถูกต้อง</p></div>`;
-            }
-        }
-
-        function filterUsers() {
-            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            const statusFilter = document.getElementById('userStatusFilter').value;
-            filteredUsers = usersData.filter(user => {
-                const matchesSearch = user.display_name.toLowerCase().includes(searchTerm);
-                const matchesStatus = !statusFilter || user.status === statusFilter;
-                return matchesSearch && matchesStatus;
-            });
-            renderUsersTable();
-        }
-        
-        function viewUserProfile(userId) {
-            const user = usersData.find(u => u.user_id === userId);
-            if (!user) {
-                Swal.fire('ไม่พบข้อมูล', 'ไม่พบข้อมูลผู้ใช้ที่เลือก', 'error');
-                return;
-            }
-
-            const statusBadge = getStatusBadge(user.status);
-            const userProfileContent = document.getElementById('userProfileContent');
-            userProfileContent.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                                ${user.display_name ? user.display_name.charAt(0) : 'N/A'}
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold text-gray-800">${user.display_name || 'N/A'}</h4>
-                                <p class="text-gray-500">User ID: ${user.user_id}</p>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h5 class="font-semibold text-gray-700 mb-3">ข้อมูลทั่วไป</h5>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">สถานะ:</span>
-                                    ${statusBadge}
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">เข้าร่วมเมื่อ:</span>
-                                    <span class="text-gray-800">${formatDateTime(user.join_date)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('userProfileModal').classList.remove('hidden');
-            document.getElementById('userProfileModal').classList.add('flex');
-        }
-
-        function closeUserProfileModal() {
-            document.getElementById('userProfileModal').classList.add('hidden');
-            document.getElementById('userProfileModal').classList.remove('flex');
-        }
-
-        function formatDateTime(isoString) {
-            if (!isoString) return 'ไม่ระบุ';
-            try {
-                const date = new Date(isoString);
-                if (isNaN(date.getTime())) {
-                    return isoString; // return original if invalid
-                }
-                const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                };
-                return new Intl.DateTimeFormat('th-TH', options).format(date);
-            } catch (e) {
-                return isoString;
-            }
-        }
-
-        // --- Other Functions ---
-        function handleLogout() { Swal.fire('การออกจากระบบถูกปิดใช้งานในโหมดพัฒนา', '', 'info'); }
-        function exportUsers() { Swal.fire('ฟังก์ชัน Export กำลังอยู่ระหว่างการพัฒนา', '', 'info'); }
-
-        // Expose functions to the global scope
-        window.initDashboard = initDashboard;
-        window.refreshData = refreshData;
-        window.viewUsers = viewUsers;
-        window.manageKeywords = manageKeywords;
-        window.botSettings = botSettings;
-        window.manageAdmins = manageAdmins;
-        window.hideSection = hideSection;
-        window.addKeyword = addKeyword;
-        window.saveKeyword = saveKeyword;
-        window.editKeyword = editKeyword;
-        window.deleteKeyword = deleteKeyword;
-        window.clearForm = clearForm;
-        window.toggleResponseFields = toggleResponseFields;
-        window.formatJSON = formatJSON;
-        window.validateJSON = validateJSON;
-        window.updateJSONPreview = updateJSONPreview;
-        window.saveSettings = saveSettings;
-        window.filterUsers = filterUsers;
-        window.handleLogout = handleLogout;
-        window.exportUsers = exportUsers;
-        window.viewUserProfile = viewUserProfile;
-        window.closeUserProfileModal = closeUserProfileModal;
-        window.renderFlexPreview = renderFlexPreview;
-        window.renderBubblePreview = renderBubblePreview;
-        window.renderCarouselPreview = renderCarouselPreview;
-        window.renderBoxContents = renderBoxContents;
-        window.addAdmin = addAdmin;
-
-        // Start the dashboard
-        document.addEventListener('DOMContentLoaded', () => {
-            initDashboard();
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
