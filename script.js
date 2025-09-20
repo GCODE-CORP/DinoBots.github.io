@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleSheetsIdInput = document.getElementById('googleSheetsId');
 
     // Make sure to replace with your deployed Google Apps Script URL
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxUPW-E-DoF4hfyInt7Px36vf2TDTFd6c-cWNCgPmLJbrud5wWdS73Sl2w719flzNbJMA/exec';
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxrwedzbuy3OlMV__WgZfPaLCwDQpoZDUKex5ccGAPTcCql5JVFwgduTsFPCeO_Y0Ru-g/exec';
     
     // --- LocalStorage System ---
     function saveSheetIdToLocalStorage() {
