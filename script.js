@@ -1,236 +1,243 @@
-// Global variable for spreadsheet and sheet names.
-const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
-const SHEETS = {
-  USERS: 'Users',
-  KEYWORDS: 'Keywords',
-  SETTINGS: 'Settings',
-  ADMINS: 'Admins'
-};
-// **สำคัญ: แทนที่ด้วย Channel Access Token ของคุณ**
-const CHANNEL_ACCESS_TOKEN = "Fr6zv1l6vQGISKDyRBa964VdGcWuKvi1SOz1c6oaebEF5qBU7/uqqqpFcCagi41BCpuWL5Jsby3aaN/eYnsTvp4VHW4PXKw8A8lV1JHWqH08aWfHlA83xrhcNY2kJsl8c2WYgGxeEzwqnYQNIGPd9gdB04t89/1O/w1cDnyilFU=";
-const LINE_REPLY_URL = "https://api.line.me/v2/bot/message/reply";
-
-// --- Main API Functions ---
-
-function doGet(e) {
-  const sheetName = e.parameter.sheet;
-
-  if (!sheetName) {
-    return createResponse({ success: false, error: 'Missing sheet name parameter.' }, 400);
-  }
-
-  try {
-    const sheet = getSheetByName(sheetName);
-    const data = getAllData(sheet);
-    return createResponse({ success: true, data: data });
-  } catch (error) {
-    return createResponse({ success: false, error: error.message }, 500);
-  }
+// ตรวจสอบสถานะการล็อกอินก่อนเริ่มทำงาน
+const isLoggedIn = localStorage.getItem('isLoggedIn');
+if (isLoggedIn !== 'true') {
+    window.location.href = 'login.html';
+} else {
+    // ลบสถานะการล็อกอินทันทีเมื่อโหลดหน้าหลัก เพื่อบังคับให้ล็อกอินใหม่ทุกครั้ง
+    localStorage.removeItem('isLoggedIn');
 }
 
-function doPost(e) {
-  try {
-    const postData = JSON.parse(e.postData.contents);
+document.addEventListener('DOMContentLoaded', () => {
+    const keywordInput = document.getElementById('keywordInput');
+    const responseType = document.getElementById('responseType');
+    const responseContent = document.getElementById('responseContent');
+    const addKeywordBtn = document.getElementById('addKeywordBtn');
+    const keywordTableBody = document.getElementById('keywordTableBody');
+    const statusContainer = document.getElementById('status-container');
+    const googleSheetsIdInput = document.getElementById('googleSheetsId');
+
+    // Make sure to replace with your deployed Google Apps Script URL
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwgGTKS-wZgqkp2vsO5hIWR6dGEUim0itsqYVRSvxzekFTZwbk5bwXZycbIO6x2myYo1Q/exec';
     
-    if (postData && postData.events) {
-      return doPost_LINE(e);
+    // --- LocalStorage System ---
+    function saveSheetIdToLocalStorage() {
+        const sheetsId = googleSheetsIdInput.value.trim();
+        if (sheetsId) {
+            localStorage.setItem('dinoBotSheetId', sheetsId);
+        }
     }
-  } catch (error) {
-    // Continue for dashboard requests
-  }
 
-  const sheetName = e.parameter.sheet;
-  const action = e.parameter.action;
+    function loadSheetIdFromLocalStorage() {
+        const storedId = localStorage.getItem('dinoBotSheetId');
+        if (storedId) {
+            googleSheetsIdInput.value = storedId;
+        }
+    }
+    // --- End LocalStorage System ---
 
-  if (!sheetName || !action) {
-    return createResponse({ success: false, error: 'Missing sheet name or action parameter.' }, 400);
-  }
+    // Function to show a custom notification
+    function showNotification(message, isSuccess = true) {
+        const notification = document.createElement('div');
+        notification.className = `
+            p-4 rounded-md shadow-lg text-white font-medium
+            transform transition-all duration-300 ease-out translate-x-full
+        `;
+        const bgColor = isSuccess ? 'bg-green-500' : 'bg-red-500';
+        const icon = isSuccess ? 'fas fa-check-circle' : 'fas fa-times-circle';
 
-  try {
-    const sheet = getSheetByName(sheetName);
-    const postData = JSON.parse(e.postData.contents);
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="${icon} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        notification.classList.add(bgColor);
+        statusContainer.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 100);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            notification.addEventListener('transitionend', () => {
+                notification.remove();
+            });
+        }, 5000);
+    }
+
+    // Function to fetch data from Google Sheets
+    async function fetchDataFromSheets() {
+        const sheetsId = googleSheetsIdInput.value.trim();
+        if (!sheetsId) {
+            return;
+        }
+        
+        showNotification('กำลังดึงข้อมูลจาก Google Sheets...', true);
+        const urlWithParams = `${webAppUrl}?action=get&sheetId=${sheetsId}`;
+
+        try {
+            const response = await fetch(urlWithParams);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                renderTable(data.data);
+                showNotification('ดึงข้อมูลสำเร็จ!', true);
+            } else {
+                renderTable([]);
+                showNotification(`เกิดข้อผิดพลาด: ${data.message}`, false);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            renderTable([]);
+            showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อดึงข้อมูล ❌', false);
+        }
+    }
     
-    let result;
-    if (sheetName === SHEETS.KEYWORDS && action === 'add') {
-      result = addKeyword(sheet, postData);
-    } else if (sheetName === SHEETS.KEYWORDS && action === 'update') {
-      result = updateKeyword(sheet, postData);
-    } else if (sheetName === SHEETS.KEYWORDS && action === 'delete') {
-      result = deleteKeyword(sheet, postData);
-    } else if (sheetName === SHEETS.SETTINGS && action === 'update') {
-      result = updateSetting(sheet, postData);
-    } else {
-      return createResponse({ success: false, error: 'Invalid sheet or action.' }, 400);
+    // Function to render the keyword table
+    function renderTable(keywords) {
+        keywordTableBody.innerHTML = '';
+        if (keywords.length === 0) {
+            keywordTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">ไม่พบข้อมูลคีย์เวิร์ด</td></tr>';
+            return;
+        }
+
+        keywords.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${item.keyword}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${item.type}</td>
+                <td class="px-6 py-4 max-w-xs truncate">${item.content}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button class="text-indigo-600 hover:text-indigo-900 mr-2 edit-btn" data-index="${index}">
+                        <i class="fas fa-edit"></i>
+                        แก้ไข
+                    </button>
+                    <button class="text-red-600 hover:text-red-900 delete-btn" data-index="${index}">
+                        <i class="fas fa-trash-alt"></i>
+                        ลบ
+                    </button>
+                </td>
+            `;
+            keywordTableBody.appendChild(row);
+        });
     }
 
-    return createResponse({ success: true, result: result });
-  } catch (error) {
-    return createResponse({ success: false, error: error.message }, 500);
-  }
-}
+    // Function to handle save/update button logic
+    addKeywordBtn.addEventListener('click', () => {
+        const keyword = keywordInput.value.trim();
+        const type = responseType.value;
+        const content = responseContent.value.trim();
 
-function doPost_LINE(e) {
-  const events = JSON.parse(e.postData.contents).events;
+        if (keyword && content) {
+            const sheetsId = googleSheetsIdInput.value.trim();
+            if (!sheetsId) {
+                showNotification('กรุณาใส่ Google Sheets ID', false);
+                return;
+            }
+            
+            const action = addKeywordBtn.dataset.action || 'add';
+            const index = addKeywordBtn.dataset.index;
+            
+            const payload = {
+                action: action,
+                sheetId: sheetsId,
+                keyword: keyword,
+                type: type,
+                content: content,
+                index: index ? parseInt(index) + 2 : null
+            };
 
-  events.forEach(event => {
-    if (event.type === 'message' && event.message.type === 'text') {
-      const userMessage = event.message.text;
-      const replyToken = event.replyToken;
-      handleBotReply(userMessage, replyToken);
-    } else if (event.type === 'follow') {
-      const replyToken = event.replyToken;
-      const uid = event.source.userId;
-      handleFollow(replyToken, uid);
-    }
-  });
-  
-  return ContentService.createTextOutput(JSON.stringify({ success: true }));
-}
-
-function handleBotReply(userMessage, replyToken) {
-  const keywordSheet = getSheetByName(SHEETS.KEYWORDS);
-  const keywordsData = getAllData(keywordSheet);
-  
-  const matchedKeyword = keywordsData.find(k => k.keyword === userMessage);
-
-  if (matchedKeyword) {
-    let replyMessage;
-    if (matchedKeyword.response_type === 'text') {
-      replyMessage = {
-        type: "text",
-        text: matchedKeyword.response_content
-      };
-    } else if (matchedKeyword.response_type === 'url') {
-      const urlContent = matchedKeyword.response_content;
-      if (isImageUrl(urlContent)) {
-        replyMessage = {
-          type: "image",
-          originalContentUrl: urlContent,
-          previewImageUrl: urlContent
-        };
-      } else {
-        replyMessage = {
-          type: "text",
-          text: `คลิกที่นี่เพื่อดูข้อมูล: ${urlContent}`
-        };
-      }
-    } else if (matchedKeyword.response_type === 'flex_message') {
-      replyMessage = {
-        type: "flex",
-        altText: "Flex Message จาก DinoBot",
-        contents: JSON.parse(matchedKeyword.response_content)
-      };
-    }
-    sendLineReply(replyToken, [replyMessage]);
-  }
-}
-
-function handleFollow(replyToken, uid) {
-  const settingsSheet = getSheetByName(SHEETS.SETTINGS);
-  const settingsData = getAllData(settingsSheet);
-  const welcomeMessage = settingsData.find(s => s.setting_name === 'welcome_message');
-  
-  const usersSheet = getSheetByName(SHEETS.USERS);
-  usersSheet.appendRow([uid, 'New User', 'active', new Date().toISOString()]);
-  
-  const replyMessage = {
-    type: "text",
-    text: welcomeMessage.setting_value || "สวัสดีครับ ยินดีต้อนรับสู่ DinoBot!"
-  };
-  sendLineReply(replyToken, [replyMessage]);
-}
-
-function sendLineReply(replyToken, messages) {
-  UrlFetchApp.fetch(LINE_REPLY_URL, {
-    'headers': {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN,
-    },
-    'method': 'post',
-    'payload': JSON.stringify({
-      replyToken: replyToken,
-      messages: messages,
-    }),
-  });
-}
-
-function isImageUrl(url) {
-  return (url.match(/\.(jpeg|jpg|gif|png|webp)$/) != null);
-}
-
-// --- Helper Functions ---
-
-function getSheetByName(sheetName) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(sheetName);
-  if (!sheet) {
-    throw new Error(`Sheet "${sheetName}" not found.`);
-  }
-  return sheet;
-}
-
-function getAllData(sheet) {
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) {
-    return [];
-  }
-  const headers = data.shift().map(header => header.toLowerCase());
-  return data.map(row => {
-    const obj = {};
-    headers.forEach((header, i) => {
-      obj[header] = row[i];
+            fetch(webAppUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success'){
+                    showNotification(data.message, true);
+                    keywordInput.value = '';
+                    responseContent.value = '';
+                    addKeywordBtn.textContent = 'เพิ่ม';
+                    addKeywordBtn.dataset.action = 'add';
+                    fetchDataFromSheets();
+                } else {
+                    showNotification(data.message, false);
+                }
+            })
+            .catch(error => {
+                showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ ❌', false);
+                console.error('Error:', error);
+            });
+        } else {
+            showNotification('กรุณากรอกข้อมูลคีย์เวิร์ดและเนื้อหาคำตอบ ⚠️', false);
+        }
     });
-    return obj;
-  });
-}
 
-function addKeyword(sheet, keywordData) {
-  sheet.appendRow([
-    keywordData.keyword,
-    keywordData.response_type,
-    keywordData.response_content
-  ]);
-  return 'Keyword added successfully.';
-}
+    keywordTableBody.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
+            const index = target.closest('button').dataset.index;
+            const sheetsId = googleSheetsIdInput.value.trim();
+            if (!sheetsId) {
+                showNotification('กรุณาใส่ Google Sheets ID', false);
+                return;
+            }
 
-function updateKeyword(sheet, keywordData) {
-  const data = sheet.getDataRange().getValues();
-  const keywordToUpdate = keywordData.originalKeyword;
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === keywordToUpdate) {
-      sheet.getRange(i + 1, 1, 1, 3).setValues([
-        [keywordData.keyword, keywordData.response_type, keywordData.response_content]
-      ]);
-      return 'Keyword updated successfully.';
-    }
-  }
-  throw new Error(`Keyword "${keywordToUpdate}" not found.`);
-}
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบคีย์เวิร์ดนี้?')) {
+                const payload = {
+                    action: 'delete',
+                    sheetId: sheetsId,
+                    index: parseInt(index) + 2
+                };
 
-function deleteKeyword(sheet, keywordData) {
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === keywordData.keyword) {
-      sheet.deleteRow(i + 1);
-      return 'Keyword deleted successfully.';
-    }
-  }
-  throw new Error(`Keyword "${keywordData.keyword}" not found.`);
-}
+                fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showNotification(data.message, true);
+                        fetchDataFromSheets();
+                    } else {
+                        showNotification(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ ❌', false);
+                    console.error('Error:', error);
+                });
+            }
+        } else if (target.classList.contains('edit-btn') || target.closest('.edit-btn')) {
+            const index = target.closest('button').dataset.index;
+            const row = target.closest('tr');
+            const keyword = row.cells[0].textContent;
+            const type = row.cells[1].textContent;
+            const content = row.cells[2].textContent;
 
-function updateSetting(sheet, settingData) {
-  const data = sheet.getDataRange().getValues();
-  const settingToUpdate = settingData.setting_name;
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === settingToUpdate) {
-      sheet.getRange(i + 1, 2).setValue(settingData.setting_value);
-      return 'Setting updated successfully.';
-    }
-  }
-  throw new Error(`Setting "${settingToUpdate}" not found.`);
-}
+            keywordInput.value = keyword;
+            responseType.value = type;
+            responseContent.value = content;
+            
+            addKeywordBtn.textContent = 'บันทึกการแก้ไข';
+            addKeywordBtn.dataset.action = 'update';
+            addKeywordBtn.dataset.index = index;
+            
+            showNotification('แก้ไขข้อมูลในช่องด้านบน แล้วกด "บันทึกการแก้ไข"', true);
+        }
+    });
 
-function createResponse(content) {
-  const response = ContentService.createTextOutput(JSON.stringify(content));
-  response.setMimeType(ContentService.MimeType.JSON);
-  return response;
-}
+    // Save Sheet ID whenever the input field changes
+    googleSheetsIdInput.addEventListener('input', () => {
+        saveSheetIdToLocalStorage();
+        fetchDataFromSheets();
+    });
+
+    // Initial load and render
+    loadSheetIdFromLocalStorage();
+    fetchDataFromSheets();
+});
