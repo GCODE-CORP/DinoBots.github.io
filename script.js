@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleSheetsIdInput = document.getElementById('googleSheetsId');
 
     // Make sure to replace with your deployed Google Apps Script URL
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbyt6m9d77juVjSrW9BkbwBXIYQYo_F9xbM-WBf5VW5psz235QGHjt9EZcbkU4tlZuae1A/exec';
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbws1GjhOM9uBfFDKs6cnK24psTGvKMDxrW_wPWkezJl5oIJv5pNyI-xqvEFoABb3y_N5w/exec';
     
     // --- LocalStorage System ---
     function saveSheetIdToLocalStorage() {
@@ -241,5 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSheetIdFromLocalStorage();
     fetchDataFromSheets();
 });
+
 
 
