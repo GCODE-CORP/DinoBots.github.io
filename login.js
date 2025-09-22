@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
 
     // !!! เปลี่ยนรหัสผ่านตรงนี้ !!!
-    const devPassword = 'DinoBotDev200543'; 
+    const devPassword = 'Dev200543'; 
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
